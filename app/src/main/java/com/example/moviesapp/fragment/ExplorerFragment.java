@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
@@ -19,8 +20,12 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.moviesapp.R;
 import com.example.moviesapp.adapters.SlidersAdapter;
+import com.example.moviesapp.adapters.TopMoviesAdapter;
+import com.example.moviesapp.adapters.UpcomingMovieAdapter;
+import com.example.moviesapp.entities.Film;
 import com.example.moviesapp.entities.SliderItems;
 import com.example.moviesapp.interfaces.MovieApi;
+import com.example.moviesapp.response.FilmResponse;
 import com.example.moviesapp.response.SliderResponse;
 import com.example.moviesapp.retrofit.MovieClient;
 
@@ -44,6 +49,17 @@ public class ExplorerFragment extends Fragment {
     private List<SliderItems> sliderItems;
     private SlidersAdapter slidersAdapter;
     private ProgressBar progressBarBanner;
+
+    private RecyclerView recyclerViewTopMovies;
+    private ProgressBar progressBarTopMovies;
+    private List<Film> topMovies;
+    private TopMoviesAdapter topMoviesAdapter;
+
+    private RecyclerView recyclerViewUpcoming;
+    private ProgressBar progressBarUpcoming;
+    private List<Film> upcomingMovies;
+    private UpcomingMovieAdapter upcomingMovieAdapter;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -58,9 +74,27 @@ public class ExplorerFragment extends Fragment {
         slidersAdapter = new SlidersAdapter(sliderItems, viewPager2);
         viewPager2.setAdapter(slidersAdapter);
         progressBarBanner = view.findViewById(R.id.progressBarBanner);
+
+        recyclerViewTopMovies = view.findViewById(R.id.recyclerViewTopMovies);
+        progressBarTopMovies = view.findViewById(R.id.progressBarTopMovies);
+        topMovies = new ArrayList<>();
+        recyclerViewTopMovies.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        topMoviesAdapter = new TopMoviesAdapter(topMovies, this);
+        recyclerViewTopMovies.setAdapter(topMoviesAdapter);
+
+        recyclerViewUpcoming = view.findViewById(R.id.recyclerViewUpcoming);
+        progressBarUpcoming = view.findViewById(R.id.progressBarUpcoming);
+        upcomingMovies = new ArrayList<>();
+        upcomingMovieAdapter = new UpcomingMovieAdapter(upcomingMovies, this);
+        recyclerViewUpcoming.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewUpcoming.setAdapter(upcomingMovieAdapter);
+
         bannerSlider();
         fetchMovies();
+        fetchTopMovies();
+        fetchUpcomingMovies();
     }
+
     private void bannerSlider() {
         viewPager2.setClipToPadding(false);
         viewPager2.setClipChildren(false);
@@ -113,6 +147,48 @@ public class ExplorerFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Call<SliderResponse> call, @NonNull Throwable t) {
                 Log.e("API_ERROR", "Lỗi: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchTopMovies() {
+        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
+        Call<FilmResponse> call = movieApi.getTopMovies(BEARER_TOKEN, "en-US", 1);
+        call.enqueue(new Callback<>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(@NonNull Call<FilmResponse> call, @NonNull Response<FilmResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    topMovies.addAll(response.body().getResults());
+                    topMoviesAdapter.notifyDataSetChanged();
+                    progressBarTopMovies.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<FilmResponse> call, @NonNull Throwable t) {
+                Log.e("API_ERROR", "Lỗi: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchUpcomingMovies() {
+        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
+        Call<FilmResponse> call = movieApi.getUpcomingMovies(BEARER_TOKEN, "en-US", 1);
+        call.enqueue(new Callback<>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(@NonNull Call<FilmResponse> call, @NonNull Response<FilmResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    upcomingMovies.addAll(response.body().getResults());
+                    upcomingMovieAdapter.notifyDataSetChanged();
+                    progressBarUpcoming.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<FilmResponse> call, @NonNull Throwable t) {
+
             }
         });
     }

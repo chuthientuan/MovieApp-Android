@@ -44,8 +44,7 @@ public class SlidersAdapter extends RecyclerView.Adapter<SlidersAdapter.SliderVi
     @Override
     public SlidersAdapter.SliderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
-        return new SliderViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.slider_viewholder, parent, false)
-        );
+        return new SliderViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.slider_viewholder, parent, false));
     }
 
     @Override
@@ -78,7 +77,7 @@ public class SlidersAdapter extends RecyclerView.Adapter<SlidersAdapter.SliderVi
             requestOptions = requestOptions.transform(new CenterCrop(),
                     new RoundedCorners(60));
             Glide.with(context)
-                    .load(sliderItems.getBackdrop_path())
+                    .load(sliderItems.getPoster_path())
                     .apply(requestOptions)
                     .into(imageView);
             nameTxt.setText(sliderItems.getTitle());
