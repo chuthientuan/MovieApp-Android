@@ -17,6 +17,8 @@ public class DetailMovie extends Film {
     private String imdb;
     @SerializedName("cast")
     private List<Actor> actors;
+    @SerializedName("results")
+    private List<Video> videos;
 
     @Override
     public int getId() {
@@ -55,5 +57,9 @@ public class DetailMovie extends Film {
 
     public List<Actor> getActors() {
         return actors;
+    }
+
+    public List<Video> getVideos() {
+        return videos;
     }
 }
