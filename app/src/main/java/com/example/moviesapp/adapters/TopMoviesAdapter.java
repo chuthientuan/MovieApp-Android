@@ -1,6 +1,6 @@
 package com.example.moviesapp.adapters;
 
-import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +15,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.moviesapp.R;
+import com.example.moviesapp.activities.DetailActivity;
 import com.example.moviesapp.entities.Film;
 import com.example.moviesapp.fragment.ExplorerFragment;
 
@@ -38,6 +39,11 @@ public class TopMoviesAdapter extends RecyclerView.Adapter<TopMoviesAdapter.View
     @Override
     public void onBindViewHolder(@NonNull TopMoviesAdapter.ViewHolder holder, int position) {
         holder.setData(films.get(position));
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context.getContext(), DetailActivity.class);
+            intent.putExtra("movieId", films.get(position).getId());
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -48,11 +54,13 @@ public class TopMoviesAdapter extends RecyclerView.Adapter<TopMoviesAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;
         private final TextView txtName;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             txtName = itemView.findViewById(R.id.txtName);
         }
+
         public void setData(Film film) {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions = requestOptions.transform(new CenterCrop(),
