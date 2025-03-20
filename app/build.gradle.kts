@@ -51,6 +51,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.1")
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     annotationProcessor(libs.glide.compiler)

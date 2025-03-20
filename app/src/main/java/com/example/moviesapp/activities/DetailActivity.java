@@ -1,6 +1,7 @@
 package com.example.moviesapp.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,11 +33,14 @@ import com.example.moviesapp.adapters.GenreAdapter;
 import com.example.moviesapp.entities.Actor;
 import com.example.moviesapp.entities.DetailMovie;
 import com.example.moviesapp.entities.Genre;
+import com.example.moviesapp.entities.Video;
 import com.example.moviesapp.interfaces.MovieApi;
 import com.example.moviesapp.retrofit.MovieClient;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import eightbitlab.com.blurview.BlurView;
@@ -60,6 +64,8 @@ public class DetailActivity extends AppCompatActivity {
     private GenreAdapter genreAdapter;
     private List<Genre> genres;
     private DetailMovie detailMovie;
+
+    private List<Video> videos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,8 +112,10 @@ public class DetailActivity extends AppCompatActivity {
 
         movieId = getIntent().getIntExtra("movieId", 0);
         backImg.setOnClickListener(v -> finish());
+        videos = new ArrayList<>();
         fetchMovieDetails();
         fetchActor();
+        fetchTrailer();
     }
 
     private void fetchMovieDetails() {
@@ -158,6 +166,35 @@ public class DetailActivity extends AppCompatActivity {
                             .collect(Collectors.toList());
                     actors.addAll(mainActors);
                     actorAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<DetailMovie> call, @NonNull Throwable t) {
+                Log.e("API_ERROR", "Lỗi: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchTrailer() {
+        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
+        Call<DetailMovie> call = movieApi.getMovieTrailer(BEARER_TOKEN, movieId, "en-US");
+        call.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<DetailMovie> call, @NonNull Response<DetailMovie> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    detailMovie = response.body();
+                    Optional<Video> bestTrailer = detailMovie.getVideos().stream()
+                            .filter(video -> "Trailer".equals(video.getType()))
+                            .max(Comparator.comparing(Video::getSize));
+                    bestTrailer.ifPresent(video -> {
+                        String videoKey = video.getKey();
+                        btnWatchTrailer.setOnClickListener(v -> {
+                            Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
+                            intent.putExtra("videoKey", videoKey);
+                            startActivity(intent);
+                        });
+                    });
                 }
             }
 

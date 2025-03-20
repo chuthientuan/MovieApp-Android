@@ -45,4 +45,11 @@ public interface MovieApi {
             @Path("movie_id") int movieId,
             @Query("language") String language
     );
+
+    @GET("/3/movie/{movie_id}/videos")
+    Call<DetailMovie> getMovieTrailer(
+            @Header("Authorization") String authToken,
+            @Path("movie_id") int movieId,
+            @Query("language") String language
+    );
 }
