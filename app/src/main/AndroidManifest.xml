@@ -17,6 +17,7 @@
         <activity
             android:name=".activities.TrailerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:hardwareAccelerated="true"
             android:exported="false" />
         <activity
             android:name=".activities.DetailActivity"
