@@ -1,11 +1,14 @@
 package com.example.moviesapp.activities;
 
 import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -19,14 +22,28 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.Ful
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
+import java.util.Objects;
+
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 
 public class TrailerActivity extends AppCompatActivity {
+    YouTubePlayer youTubePlayer;
     private YouTubePlayerView youtubePlayerView;
     private String videoKey;
-    private FrameLayout mainContainer;
+    private FrameLayout full_screen_view_container;
+    private ImageView backImg;
     private boolean isFullScreen = false;
+    OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            if (isFullScreen) {
+                youTubePlayer.toggleFullscreen();
+            } else {
+                finish();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,45 +55,53 @@ public class TrailerActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        backImg = findViewById(R.id.backImg);
+        backImg.setOnClickListener(v -> finish());
         videoKey = getIntent().getStringExtra("videoKey");
         youtubePlayerView = findViewById(R.id.youtubePlayerView);
+        full_screen_view_container = findViewById(R.id.full_screen_view_container);
+
         getLifecycle().addObserver(youtubePlayerView);
+        getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
         IFramePlayerOptions iFramePlayerOptions = new IFramePlayerOptions.Builder()
                 .controls(1)
                 .fullscreen(1)
                 .build();
+        youtubePlayerView.setEnableAutomaticInitialization(false);
         youtubePlayerView.initialize(new AbstractYouTubePlayerListener() {
             @Override
             public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+                TrailerActivity.this.youTubePlayer = youTubePlayer;
                 youTubePlayer.loadVideo(videoKey, 0);
+                youTubePlayer.pause();
             }
-        }, true, iFramePlayerOptions);
+        }, iFramePlayerOptions);
+
         youtubePlayerView.addFullscreenListener(new FullscreenListener() {
             @Override
             public void onEnterFullscreen(@NonNull View view, @NonNull Function0<Unit> function0) {
-                enterFullScreen(view);
+                isFullScreen = true;
+                youtubePlayerView.setVisibility(View.GONE);
+                full_screen_view_container.setVisibility(View.VISIBLE);
+                full_screen_view_container.addView(view);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    Objects.requireNonNull(getWindow().getInsetsController()).hide(WindowInsetsCompat.Type.systemBars());
+                }
             }
 
             @Override
             public void onExitFullscreen() {
-                exitFullScreen();
+                isFullScreen = false;
+                youtubePlayerView.setVisibility(View.VISIBLE);
+                full_screen_view_container.setVisibility(View.GONE);
+                full_screen_view_container.removeAllViews();
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    Objects.requireNonNull(getWindow().getInsetsController()).show(WindowInsetsCompat.Type.systemBars());
+                }
             }
         });
-    }
-
-    private void enterFullScreen(View view) {
-        isFullScreen = true;
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // Xoay ngang
-        mainContainer.setVisibility(View.GONE); // Ẩn layout chính để chỉ hiện video
-        setContentView(view); // Chỉ hiển thị video khi fullscreen
-    }
-
-    private void exitFullScreen() {
-        isFullScreen = false;
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // Xoay dọc
-        setContentView(R.layout.activity_trailer); // Hiển thị lại toàn bộ layout
-        youtubePlayerView = findViewById(R.id.youtubePlayerView);
-        getLifecycle().addObserver(youtubePlayerView);
     }
 
     @Override
