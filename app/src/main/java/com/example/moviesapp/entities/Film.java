@@ -9,6 +9,8 @@ public class Film {
     private String title;
     @SerializedName("poster_path")
     private String poster_path;
+    @SerializedName("backdrop_path")
+    private String backdrop_path;
 
     public int getId() {
         return id;
@@ -32,5 +34,13 @@ public class Film {
 
     public void setPoster_path(String poster_path) {
         this.poster_path = poster_path;
+    }
+
+    public String getBackdrop_path() {
+        return "https://image.tmdb.org/t/p/w500" + backdrop_path;
+    }
+
+    public void setBackdrop_path(String backdrop_path) {
+        this.backdrop_path = backdrop_path;
     }
 }
