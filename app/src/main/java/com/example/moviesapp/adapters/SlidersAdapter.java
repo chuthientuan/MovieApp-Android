@@ -2,6 +2,8 @@ package com.example.moviesapp.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +19,11 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.moviesapp.R;
+import com.example.moviesapp.activities.DetailActivity;
 import com.example.moviesapp.entities.SliderItems;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class SlidersAdapter extends RecyclerView.Adapter<SlidersAdapter.SliderViewHolder> {
@@ -49,10 +54,16 @@ public class SlidersAdapter extends RecyclerView.Adapter<SlidersAdapter.SliderVi
 
     @Override
     public void onBindViewHolder(@NonNull SlidersAdapter.SliderViewHolder holder, int position) {
-        holder.setImage(sliderItems.get(position));
+        holder.setData(sliderItems.get(position));
         if (position == sliderItems.size() - 2) {
             viewPager2.post(runnable);
         }
+        holder.itemView.setOnClickListener(v -> {
+            int movieId = sliderItems.get(position).getId();
+            Intent intent = new Intent(context, DetailActivity.class);
+            intent.putExtra("movieId", movieId);
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -72,16 +83,32 @@ public class SlidersAdapter extends RecyclerView.Adapter<SlidersAdapter.SliderVi
             yearTxt = itemView.findViewById(R.id.yearTxt);
         }
 
-        public void setImage(SliderItems sliderItems) {
+        public void setData(SliderItems sliderItems) {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions = requestOptions.transform(new CenterCrop(),
                     new RoundedCorners(60));
             Glide.with(context)
-                    .load(sliderItems.getPoster_path())
+                    .load(sliderItems.getBackdrop_path())
                     .apply(requestOptions)
                     .into(imageView);
             nameTxt.setText(sliderItems.getTitle());
-            yearTxt.setText(sliderItems.getRelease_date());
+            String releaseDate = sliderItems.getRelease_date();
+            String yearString = "";
+            if (releaseDate != null && !releaseDate.isEmpty()) {
+                try {
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    Date date = inputFormat.parse(releaseDate);
+                    if (date != null) {
+                        yearString = outputFormat.format(date);
+                    }
+                } catch (Exception e) {
+                    Log.e("DATE_PARSING_ERROR", "Error parsing date: " + releaseDate, e);
+                }
+            }
+            yearTxt.setText(yearString);
         }
     }
 }
