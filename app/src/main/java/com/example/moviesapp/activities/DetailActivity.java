@@ -12,6 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -37,8 +38,10 @@ import com.example.moviesapp.entities.Video;
 import com.example.moviesapp.interfaces.MovieApi;
 import com.example.moviesapp.retrofit.MovieClient;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,21 +54,19 @@ import retrofit2.Response;
 
 public class DetailActivity extends AppCompatActivity {
     private static final String BEARER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYmU0MTRlYTZmZDg5NjFmOGQ2Y2Y0NjQ2MGJhMTgyZCIsIm5iZiI6MTc0MDM4NzQ3Ni42OTUwMDAyLCJzdWIiOiI2N2JjMzQ5NDc0MTE1MmIwNDIwYWJjMGEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.jXswQOY-SSxrfNtB5DlxJt6MWHsqGaUieY9xvjV-lOs";
-    private ImageView backImg, moviePic;
+    ImageView backImg, moviePic;
+    RecyclerView recyclerViewCast;
+    BlurView blurView;
+    RecyclerView recyclerViewGenre;
+    List<Video> videos;
     private TextView txtTitle, txtMovieTimes, movieSummary, txtImbd;
-    private RecyclerView recyclerViewCast;
     private ActorAdapter actorAdapter;
     private List<Actor> actors;
     private AppCompatButton btnWatchTrailer;
-    private BlurView blurView;
     private int movieId;
-
-    private RecyclerView recyclerViewGenre;
     private GenreAdapter genreAdapter;
     private List<Genre> genres;
     private DetailMovie detailMovie;
-
-    private List<Video> videos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +136,28 @@ public class DetailActivity extends AppCompatActivity {
                             .apply(requestOptions)
                             .into(moviePic);
                     txtTitle.setText(detailMovie.getTitle());
-                    txtMovieTimes.setText(detailMovie.getRelease_date() + " - " + detailMovie.getRuntime() + " minutes");
+
+                    String releaseDate = detailMovie.getRelease_date();
+                    String yearString = "";
+                    if (releaseDate != null && !releaseDate.isEmpty()) {
+                        try {
+                            @SuppressLint("SimpleDateFormat")
+                            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            @SuppressLint("SimpleDateFormat")
+                            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy");
+                            Date date = inputFormat.parse(releaseDate);
+                            if (date != null) {
+                                yearString = outputFormat.format(date);
+                            }
+                        } catch (Exception e) {
+                            Log.e("DATE_PARSING_ERROR", "Error parsing date: " + releaseDate, e);
+                        }
+                    }
+
+                    int runtime = detailMovie.getRuntime();
+                    int hours = runtime / 60;
+                    int minutes = runtime % 60;
+                    txtMovieTimes.setText(yearString + " - " + hours + "h " + minutes + "m");
                     movieSummary.setText(detailMovie.getOverview());
                     txtImbd.setText("IMDB: " + detailMovie.getVote_average());
                     genres.clear();
@@ -190,9 +212,13 @@ public class DetailActivity extends AppCompatActivity {
                     bestTrailer.ifPresent(video -> {
                         String videoKey = video.getKey();
                         btnWatchTrailer.setOnClickListener(v -> {
-                            Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
-                            intent.putExtra("videoKey", videoKey);
-                            startActivity(intent);
+                            if (videoKey != null && !videoKey.isEmpty()) {
+                                Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
+                                intent.putExtra("videoKey", videoKey);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(DetailActivity.this, "Hiện không có trailer", Toast.LENGTH_SHORT).show();
+                            }
                         });
                     });
                 }

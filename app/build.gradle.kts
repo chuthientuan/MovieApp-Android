@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.annotation)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(platform(libs.firebase.bom.v33110))
+    implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
     implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.1")
     implementation(libs.lifecycle.livedata.ktx)
