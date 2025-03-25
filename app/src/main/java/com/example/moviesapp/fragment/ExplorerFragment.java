@@ -1,6 +1,7 @@
 package com.example.moviesapp.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,13 +21,14 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.moviesapp.R;
+import com.example.moviesapp.activities.SeeAllActivity;
 import com.example.moviesapp.adapters.SlidersAdapter;
 import com.example.moviesapp.adapters.TopMoviesAdapter;
 import com.example.moviesapp.adapters.UpcomingMovieAdapter;
-import com.example.moviesapp.entities.Film;
+import com.example.moviesapp.entities.Movie;
 import com.example.moviesapp.entities.SliderItems;
 import com.example.moviesapp.interfaces.MovieApi;
-import com.example.moviesapp.response.FilmResponse;
+import com.example.moviesapp.response.MovieResponse;
 import com.example.moviesapp.response.SliderResponse;
 import com.example.moviesapp.retrofit.MovieClient;
 
@@ -52,13 +55,16 @@ public class ExplorerFragment extends Fragment {
 
     private RecyclerView recyclerViewTopMovies;
     private ProgressBar progressBarTopMovies;
-    private List<Film> topMovies;
+    private List<Movie> topMovies;
     private TopMoviesAdapter topMoviesAdapter;
 
     private RecyclerView recyclerViewUpcoming;
     private ProgressBar progressBarUpcoming;
-    private List<Film> upcomingMovies;
+    private List<Movie> upcomingMovies;
     private UpcomingMovieAdapter upcomingMovieAdapter;
+
+    private TextView txtSeeAllTopMovies;
+    private TextView txtSeeAllUpcoming;
 
     @Nullable
     @Override
@@ -88,6 +94,19 @@ public class ExplorerFragment extends Fragment {
         upcomingMovieAdapter = new UpcomingMovieAdapter(upcomingMovies, this);
         recyclerViewUpcoming.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerViewUpcoming.setAdapter(upcomingMovieAdapter);
+
+        txtSeeAllTopMovies = view.findViewById(R.id.txtSeeAllTopMovies);
+        txtSeeAllUpcoming = view.findViewById(R.id.txtSeeAllUpcoming);
+        txtSeeAllTopMovies.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SeeAllActivity.class);
+            intent.putExtra("titleTopMovie", "Top Movies");
+            startActivity(intent);
+        });
+        txtSeeAllUpcoming.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SeeAllActivity.class);
+            intent.putExtra("titleUpcomingMovie", "Upcoming Movies");
+            startActivity(intent);
+        });
 
         bannerSlider();
         fetchMovies();
@@ -153,11 +172,11 @@ public class ExplorerFragment extends Fragment {
 
     private void fetchTopMovies() {
         MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<FilmResponse> call = movieApi.getTopMovies(BEARER_TOKEN, "en-US", 1);
+        Call<MovieResponse> call = movieApi.getTopMovies(BEARER_TOKEN, "en-US", 1);
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onResponse(@NonNull Call<FilmResponse> call, @NonNull Response<FilmResponse> response) {
+            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     topMovies.addAll(response.body().getResults());
                     topMoviesAdapter.notifyDataSetChanged();
@@ -166,7 +185,7 @@ public class ExplorerFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<FilmResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
                 Log.e("API_ERROR", "Lỗi: " + t.getMessage());
             }
         });
@@ -174,11 +193,11 @@ public class ExplorerFragment extends Fragment {
 
     private void fetchUpcomingMovies() {
         MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<FilmResponse> call = movieApi.getUpcomingMovies(BEARER_TOKEN, "en-US", 1);
+        Call<MovieResponse> call = movieApi.getUpcomingMovies(BEARER_TOKEN, "en-US", 1);
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onResponse(@NonNull Call<FilmResponse> call, @NonNull Response<FilmResponse> response) {
+            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     upcomingMovies.addAll(response.body().getResults());
                     upcomingMovieAdapter.notifyDataSetChanged();
@@ -187,8 +206,8 @@ public class ExplorerFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<FilmResponse> call, @NonNull Throwable t) {
-
+            public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
+                Log.e("API_ERROR", "Lỗi: " + t.getMessage());
             }
         });
     }

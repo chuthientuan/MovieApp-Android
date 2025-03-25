@@ -1,7 +1,7 @@
 package com.example.moviesapp.interfaces;
 
 import com.example.moviesapp.entities.DetailMovie;
-import com.example.moviesapp.response.FilmResponse;
+import com.example.moviesapp.response.MovieResponse;
 import com.example.moviesapp.response.SliderResponse;
 
 import retrofit2.Call;
@@ -19,14 +19,14 @@ public interface MovieApi {
     );
 
     @GET("/3/movie/top_rated")
-    Call<FilmResponse> getTopMovies(
+    Call<MovieResponse> getTopMovies(
             @Header("Authorization") String authToken,
             @Query("language") String language,
             @Query("page") int page
     );
 
     @GET("/3/movie/upcoming")
-    Call<FilmResponse> getUpcomingMovies(
+    Call<MovieResponse> getUpcomingMovies(
             @Header("Authorization") String authToken,
             @Query("language") String language,
             @Query("page") int page
