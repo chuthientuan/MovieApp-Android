@@ -16,39 +16,39 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.moviesapp.R;
 import com.example.moviesapp.activities.DetailActivity;
-import com.example.moviesapp.entities.Film;
+import com.example.moviesapp.entities.Movie;
 import com.example.moviesapp.fragment.ExplorerFragment;
 
 import java.util.List;
 
 public class TopMoviesAdapter extends RecyclerView.Adapter<TopMoviesAdapter.ViewHolder> {
-    private final List<Film> films;
+    private final List<Movie> movies;
     private final ExplorerFragment context;
 
-    public TopMoviesAdapter(List<Film> films, ExplorerFragment context) {
-        this.films = films;
+    public TopMoviesAdapter(List<Movie> movies, ExplorerFragment context) {
+        this.movies = movies;
         this.context = context;
     }
 
     @NonNull
     @Override
     public TopMoviesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context.getContext()).inflate(R.layout.item_film_ex, parent, false));
+        return new ViewHolder(LayoutInflater.from(context.getContext()).inflate(R.layout.item_movie, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull TopMoviesAdapter.ViewHolder holder, int position) {
-        holder.setData(films.get(position));
+        holder.setData(movies.get(position));
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context.getContext(), DetailActivity.class);
-            intent.putExtra("movieId", films.get(position).getId());
+            intent.putExtra("movieId", movies.get(position).getId());
             context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return films.size();
+        return movies.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -61,7 +61,7 @@ public class TopMoviesAdapter extends RecyclerView.Adapter<TopMoviesAdapter.View
             txtName = itemView.findViewById(R.id.txtName);
         }
 
-        public void setData(Film film) {
+        public void setData(Movie film) {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions = requestOptions.transform(new CenterCrop(),
                     new RoundedCorners(30));

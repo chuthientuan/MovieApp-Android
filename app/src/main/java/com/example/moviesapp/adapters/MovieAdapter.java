@@ -1,5 +1,6 @@
 package com.example.moviesapp.adapters;
 
+import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,30 +18,30 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.moviesapp.R;
 import com.example.moviesapp.activities.DetailActivity;
 import com.example.moviesapp.entities.Movie;
-import com.example.moviesapp.fragment.ExplorerFragment;
 
 import java.util.List;
 
-public class UpcomingMovieAdapter extends RecyclerView.Adapter<UpcomingMovieAdapter.ViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     private final List<Movie> movies;
-    private final ExplorerFragment context;
+    private final Context context;
 
-    public UpcomingMovieAdapter(List<Movie> movies, ExplorerFragment context) {
+    public MovieAdapter(List<Movie> movies, Context context) {
         this.movies = movies;
         this.context = context;
     }
 
     @NonNull
     @Override
-    public UpcomingMovieAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context.getContext()).inflate(R.layout.item_movie, parent, false));
+    public MovieAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ViewHolder(LayoutInflater.from(context.getApplicationContext())
+                .inflate(R.layout.item_movie, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UpcomingMovieAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MovieAdapter.ViewHolder holder, int position) {
         holder.setData(movies.get(position));
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context.getContext(), DetailActivity.class);
+            Intent intent = new Intent(context.getApplicationContext(), DetailActivity.class);
             intent.putExtra("movieId", movies.get(position).getId());
             context.startActivity(intent);
         });

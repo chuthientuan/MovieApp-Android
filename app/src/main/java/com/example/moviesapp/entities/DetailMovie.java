@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class DetailMovie extends Film {
+public class DetailMovie extends Movie {
     @SerializedName("overview")
     private String overview;
     @SerializedName("release_date")
