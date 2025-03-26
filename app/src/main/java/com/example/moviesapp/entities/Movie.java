@@ -2,7 +2,7 @@ package com.example.moviesapp.entities;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Film {
+public class Movie {
     @SerializedName("id")
     private int id;
     @SerializedName("title")
