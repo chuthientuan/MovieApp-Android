@@ -1,6 +1,7 @@
 package com.example.moviesapp.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -49,6 +53,8 @@ public class ExplorerFragment extends Fragment {
             viewPager2.setCurrentItem(viewPager2.getCurrentItem() + 1);
         }
     };
+    private EditText edtSearch;
+    private ImageView backImg;
     private List<SliderItems> sliderItems;
     private SlidersAdapter slidersAdapter;
     private ProgressBar progressBarBanner;
@@ -83,6 +89,9 @@ public class ExplorerFragment extends Fragment {
 
         recyclerViewTopMovies = view.findViewById(R.id.recyclerViewTopMovies);
         progressBarTopMovies = view.findViewById(R.id.progressBarTopMovies);
+        edtSearch = view.findViewById(R.id.edtSearch);
+        backImg = view.findViewById(R.id.backImg);
+
         topMovies = new ArrayList<>();
         recyclerViewTopMovies.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         topMoviesAdapter = new TopMoviesAdapter(topMovies, this);
@@ -112,6 +121,29 @@ public class ExplorerFragment extends Fragment {
         fetchMovies();
         fetchTopMovies();
         fetchUpcomingMovies();
+        edtSearch.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                Fragment selectedFragment = null;
+                selectedFragment = new SearchFragment();
+                requireActivity().findViewById(R.id.scrollView).setVisibility(View.GONE);
+                requireActivity().findViewById(R.id.fragment_search).setVisibility(View.VISIBLE);
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_search, new SearchFragment())
+                        .addToBackStack(null)
+                        .commit();
+                backImg.setVisibility(View.VISIBLE);
+            }
+        });
+        backImg.setOnClickListener(v -> {
+            hideKeyboard();
+            requireActivity().findViewById(R.id.scrollView).setVisibility(View.VISIBLE);
+            requireActivity().findViewById(R.id.fragment_search).setVisibility(View.GONE);
+            backImg.setVisibility(View.GONE);
+            requireActivity().getSupportFragmentManager().popBackStack();
+            edtSearch.setText("");
+            edtSearch.clearFocus();
+            edtSearch.setFocusableInTouchMode(true);
+        });
     }
 
     private void bannerSlider() {
@@ -210,5 +242,13 @@ public class ExplorerFragment extends Fragment {
                 Log.e("API_ERROR", "Lỗi: " + t.getMessage());
             }
         });
+    }
+
+    private void hideKeyboard() {
+        View view = requireActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }
