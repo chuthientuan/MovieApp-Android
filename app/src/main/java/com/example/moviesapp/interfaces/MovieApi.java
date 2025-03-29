@@ -52,4 +52,11 @@ public interface MovieApi {
             @Path("movie_id") int movieId,
             @Query("language") String language
     );
+
+    @GET("/3/search/movie")
+    Call<MovieResponse> searchMovies(
+            @Header("Authorization") String authToken,
+            @Query("query") String query,
+            @Query("language") String language
+    );
 }
