@@ -45,6 +45,8 @@ public class SeeAllActivity extends AppCompatActivity {
     private MovieAdapter movieAdapter;
     private List<Movie> movies;
     private int currentPage = 1;
+    private String titleTopMovie;
+    private String titleUpcomingMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +70,8 @@ public class SeeAllActivity extends AppCompatActivity {
 
         backImg.setOnClickListener(v -> finish());
         Intent intent = getIntent();
-        String titleTopMovie = intent.getStringExtra("titleTopMovie");
-        String titleUpcomingMovie = intent.getStringExtra("titleUpcomingMovie");
+        titleTopMovie = intent.getStringExtra("titleTopMovie");
+        titleUpcomingMovie = intent.getStringExtra("titleUpcomingMovie");
         if (titleTopMovie != null) {
             txtTitle.setText(titleTopMovie);
             fetchTopMovies(currentPage);
@@ -110,6 +112,7 @@ public class SeeAllActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    movies.clear();
                     movies.addAll(response.body().getResults());
                     movieAdapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
@@ -127,47 +130,70 @@ public class SeeAllActivity extends AppCompatActivity {
         paginationLayout.removeAllViews();
 
         int totalPages = 20; // Tổng số trang (có thể lấy từ API)
-        int visiblePages = 5; // Số lượng trang hiển thị gần trang hiện tại
-        int startPage = Math.max(1, currentPage - 2);
-        int endPage = Math.min(totalPages, currentPage + 2);
+        int startPage = Math.max(2, currentPage - 2); // Luôn bắt đầu từ trang 2 nếu currentPage > 3
+        int endPage = Math.min(totalPages - 1, currentPage + 2); // Kết thúc trước trang cuối nếu currentPage < totalPages - 2
 
+        // Luôn thêm nút trang 1
         addPageButton(paginationLayout, 1);
 
-        // Hiển thị dấu "..." nếu cần
+        // Nếu trang bắt đầu từ 3 trở lên, thêm dấu "..."
         if (startPage > 2) {
             addEllipsis(paginationLayout);
         }
 
-        // Hiển thị các trang xung quanh trang hiện tại
+        // Hiển thị các trang từ startPage đến endPage
         for (int i = startPage; i <= endPage; i++) {
             addPageButton(paginationLayout, i);
         }
 
-        // Hiển thị dấu "..." nếu cần
+        // Nếu trang kết thúc trước totalPages - 1, thêm dấu "..."
         if (endPage < totalPages - 1) {
             addEllipsis(paginationLayout);
         }
 
-        // Luôn hiển thị trang cuối
+        // Luôn thêm nút trang cuối cùng
         addPageButton(paginationLayout, totalPages);
     }
 
     private void addPageButton(LinearLayout parent, int pageNumber) {
         Button pageButton = new Button(this);
         pageButton.setText(String.valueOf(pageNumber));
+
+        // Đặt kích thước nút
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                120,  // Chiều rộng (px)
+                120   // Chiều cao (px)
+        );
+        params.setMargins(8, 8, 8, 8); // Thêm khoảng cách giữa các nút
+        pageButton.setLayoutParams(params);
+
+        // Đặt màu nền và viền cho nút
+        if (pageNumber == currentPage) {
+            pageButton.setBackgroundColor(getResources().getColor(R.color.red)); // Màu nổi bật khi đang chọn
+            pageButton.setTextColor(getResources().getColor(android.R.color.white));
+        } else {
+            pageButton.setBackgroundColor(getResources().getColor(R.color.white)); // Màu bình thường
+            pageButton.setTextColor(getResources().getColor(android.R.color.black));
+        }// Màu chữ
+
+        // Bắt sự kiện click
         pageButton.setOnClickListener(v -> {
             currentPage = pageNumber;
-            fetchTopMovies(currentPage);
-            fetchUpcomingMovies(currentPage);
+            if (titleTopMovie != null) {
+                fetchTopMovies(currentPage);
+            } else if (titleUpcomingMovie != null) {
+                fetchUpcomingMovies(currentPage);
+            }
             setupPagination(); // Cập nhật lại danh sách số trang
         });
+
         parent.addView(pageButton);
     }
 
     private void addEllipsis(LinearLayout parent) {
         TextView ellipsis = new TextView(this);
         ellipsis.setText("...");
-        ellipsis.setPadding(8, 0, 8, 0);
+        ellipsis.setPadding(4, 0, 8, 0);
         parent.addView(ellipsis);
     }
 }
