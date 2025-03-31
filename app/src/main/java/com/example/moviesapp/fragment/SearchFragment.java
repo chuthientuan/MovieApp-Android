@@ -36,7 +36,6 @@ public class SearchFragment extends Fragment {
     private static final String BEARER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYmU0MTRlYTZmZDg5NjFmOGQ2Y2Y0NjQ2MGJhMTgyZCIsIm5iZiI6MTc0MDM4NzQ3Ni42OTUwMDAyLCJzdWIiOiI2N2JjMzQ5NDc0MTE1MmIwNDIwYWJjMGEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.jXswQOY-SSxrfNtB5DlxJt6MWHsqGaUieY9xvjV-lOs";
     private EditText edtSearch;
     private TextView txtNoMoive;
-    private ProgressBar progressBar;
     private RecyclerView recyclerViewList;
     private MovieAdapter movieAdapter;
     private List<Movie> movies;
@@ -52,7 +51,6 @@ public class SearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         edtSearch = requireActivity().findViewById(R.id.edtSearch);
         txtNoMoive = view.findViewById(R.id.txtNoMoive);
-        progressBar = view.findViewById(R.id.progressBar);
         recyclerViewList = view.findViewById(R.id.recyclerViewList);
         recyclerViewList.setLayoutManager(new GridLayoutManager(getContext(), 2));
         movies = new ArrayList<>();
@@ -96,7 +94,11 @@ public class SearchFragment extends Fragment {
                     movies.clear();
                     movies.addAll(response.body().getResults());
                     movieAdapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
+                    if (movies.isEmpty()) {
+                        txtNoMoive.setVisibility(View.VISIBLE);
+                    } else {
+                        txtNoMoive.setVisibility(View.GONE);
+                    }
                 }
             }
 
