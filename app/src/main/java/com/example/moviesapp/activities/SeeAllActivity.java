@@ -35,10 +35,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SeeAllActivity extends AppCompatActivity {
-    private static final String BEARER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYmU0MTRlYTZmZDg5NjFmOGQ2Y2Y0NjQ2MGJhMTgyZCIsIm5iZiI6MTc0MDM4NzQ3Ni42OTUwMDAyLCJzdWIiOiI2N2JjMzQ5NDc0MTE1MmIwNDIwYWJjMGEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.jXswQOY-SSxrfNtB5DlxJt6MWHsqGaUieY9xvjV-lOs";
     private ImageView backImg;
     private ProgressBar progressBar;
     private LinearLayout paginationLayout;
+    private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
     private TextView txtTitle;
 
     private RecyclerView recyclerViewList;
@@ -47,6 +47,7 @@ public class SeeAllActivity extends AppCompatActivity {
     private int currentPage = 1;
     private String titleTopMovie;
     private String titleUpcomingMovie;
+    private String titleNowPlayingMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,19 +73,22 @@ public class SeeAllActivity extends AppCompatActivity {
         Intent intent = getIntent();
         titleTopMovie = intent.getStringExtra("titleTopMovie");
         titleUpcomingMovie = intent.getStringExtra("titleUpcomingMovie");
+        titleNowPlayingMovie = intent.getStringExtra("titleNowPlayingMovie");
         if (titleTopMovie != null) {
             txtTitle.setText(titleTopMovie);
             fetchTopMovies(currentPage);
         } else if (titleUpcomingMovie != null) {
             txtTitle.setText(titleUpcomingMovie);
             fetchUpcomingMovies(currentPage);
+        } else if (titleNowPlayingMovie != null) {
+            txtTitle.setText(titleNowPlayingMovie);
+            fetchNowPlayingMovies(currentPage);
         }
         setupPagination();
     }
 
     private void fetchTopMovies(int pageNumber) {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<MovieResponse> call = movieApi.getTopMovies(BEARER_TOKEN, "en-US", pageNumber);
+        Call<MovieResponse> call = movieApi.getTopMovies(MovieClient.BEARER_TOKEN, "en-US", pageNumber);
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -105,8 +109,28 @@ public class SeeAllActivity extends AppCompatActivity {
     }
 
     private void fetchUpcomingMovies(int pageNumber) {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<MovieResponse> call = movieApi.getUpcomingMovies(BEARER_TOKEN, "en-US", pageNumber);
+        Call<MovieResponse> call = movieApi.getUpcomingMovies(MovieClient.BEARER_TOKEN, "en-US", pageNumber);
+        call.enqueue(new Callback<>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    movies.clear();
+                    movies.addAll(response.body().getResults());
+                    movieAdapter.notifyDataSetChanged();
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
+                Log.e("API_ERROR", "Lỗi: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchNowPlayingMovies(int pageNumber) {
+        Call<MovieResponse> call = movieApi.getNowPlayingMovies(MovieClient.BEARER_TOKEN, "en-US", pageNumber);
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -151,7 +175,6 @@ public class SeeAllActivity extends AppCompatActivity {
             addEllipsis(paginationLayout);
         }
 
-        // Luôn thêm nút trang cuối cùng
         addPageButton(paginationLayout, totalPages);
     }
 
@@ -159,34 +182,29 @@ public class SeeAllActivity extends AppCompatActivity {
         Button pageButton = new Button(this);
         pageButton.setText(String.valueOf(pageNumber));
 
-        // Đặt kích thước nút
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                120,  // Chiều rộng (px)
-                120   // Chiều cao (px)
-        );
-        params.setMargins(8, 8, 8, 8); // Thêm khoảng cách giữa các nút
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(120, 120);
+        params.setMargins(8, 8, 8, 8);
         pageButton.setLayoutParams(params);
 
-        // Đặt màu nền và viền cho nút
         if (pageNumber == currentPage) {
-            pageButton.setBackgroundColor(getResources().getColor(R.color.red)); // Màu nổi bật khi đang chọn
+            pageButton.setBackgroundColor(getResources().getColor(R.color.red));
             pageButton.setTextColor(getResources().getColor(android.R.color.white));
         } else {
-            pageButton.setBackgroundColor(getResources().getColor(R.color.white)); // Màu bình thường
+            pageButton.setBackgroundColor(getResources().getColor(R.color.white));
             pageButton.setTextColor(getResources().getColor(android.R.color.black));
-        }// Màu chữ
+        }
 
-        // Bắt sự kiện click
         pageButton.setOnClickListener(v -> {
             currentPage = pageNumber;
             if (titleTopMovie != null) {
                 fetchTopMovies(currentPage);
             } else if (titleUpcomingMovie != null) {
                 fetchUpcomingMovies(currentPage);
+            } else if (titleNowPlayingMovie != null) {
+                fetchNowPlayingMovies(currentPage);
             }
-            setupPagination(); // Cập nhật lại danh sách số trang
+            setupPagination();
         });
-
         parent.addView(pageButton);
     }
 

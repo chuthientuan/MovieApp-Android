@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,7 +32,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SearchFragment extends Fragment {
-    private static final String BEARER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYmU0MTRlYTZmZDg5NjFmOGQ2Y2Y0NjQ2MGJhMTgyZCIsIm5iZiI6MTc0MDM4NzQ3Ni42OTUwMDAyLCJzdWIiOiI2N2JjMzQ5NDc0MTE1MmIwNDIwYWJjMGEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.jXswQOY-SSxrfNtB5DlxJt6MWHsqGaUieY9xvjV-lOs";
     private EditText edtSearch;
     private TextView txtNoMoive;
     private RecyclerView recyclerViewList;
@@ -85,7 +83,7 @@ public class SearchFragment extends Fragment {
 
     private void searchMovies(String query) {
         MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<MovieResponse> call = movieApi.searchMovies(BEARER_TOKEN, query, "en-US");
+        Call<MovieResponse> call = movieApi.searchMovies(MovieClient.BEARER_TOKEN, query, "en-US");
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override

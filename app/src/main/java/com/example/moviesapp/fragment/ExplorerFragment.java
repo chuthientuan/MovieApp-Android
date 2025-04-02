@@ -26,9 +26,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.moviesapp.R;
 import com.example.moviesapp.activities.SeeAllActivity;
+import com.example.moviesapp.adapters.FetchMoviesAdapter;
 import com.example.moviesapp.adapters.SlidersAdapter;
-import com.example.moviesapp.adapters.TopMoviesAdapter;
-import com.example.moviesapp.adapters.UpcomingMovieAdapter;
 import com.example.moviesapp.entities.Movie;
 import com.example.moviesapp.entities.SliderItems;
 import com.example.moviesapp.interfaces.MovieApi;
@@ -44,8 +43,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ExplorerFragment extends Fragment {
-    private static final String BEARER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYmU0MTRlYTZmZDg5NjFmOGQ2Y2Y0NjQ2MGJhMTgyZCIsIm5iZiI6MTc0MDM4NzQ3Ni42OTUwMDAyLCJzdWIiOiI2N2JjMzQ5NDc0MTE1MmIwNDIwYWJjMGEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.jXswQOY-SSxrfNtB5DlxJt6MWHsqGaUieY9xvjV-lOs";
     private final Handler slideHandler = new Handler();
+    private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
     private ViewPager2 viewPager2;
     private final Runnable slidersRunnable = new Runnable() {
         @Override
@@ -62,15 +61,21 @@ public class ExplorerFragment extends Fragment {
     private RecyclerView recyclerViewTopMovies;
     private ProgressBar progressBarTopMovies;
     private List<Movie> topMovies;
-    private TopMoviesAdapter topMoviesAdapter;
+    private FetchMoviesAdapter topMoviesAdapter;
 
     private RecyclerView recyclerViewUpcoming;
     private ProgressBar progressBarUpcoming;
     private List<Movie> upcomingMovies;
-    private UpcomingMovieAdapter upcomingMovieAdapter;
+    private FetchMoviesAdapter upcomingMovieAdapter;
+
+    private RecyclerView recyclerViewNowPlaying;
+    private ProgressBar progressBarNowPlaying;
+    private List<Movie> nowPlayingMovies;
+    private FetchMoviesAdapter nowPlayingMovieAdapter;
 
     private TextView txtSeeAllTopMovies;
     private TextView txtSeeAllUpcoming;
+    private TextView txtSeeAllNowPlaying;
 
     @Nullable
     @Override
@@ -94,18 +99,26 @@ public class ExplorerFragment extends Fragment {
 
         topMovies = new ArrayList<>();
         recyclerViewTopMovies.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        topMoviesAdapter = new TopMoviesAdapter(topMovies, this);
+        topMoviesAdapter = new FetchMoviesAdapter(topMovies, this);
         recyclerViewTopMovies.setAdapter(topMoviesAdapter);
 
         recyclerViewUpcoming = view.findViewById(R.id.recyclerViewUpcoming);
         progressBarUpcoming = view.findViewById(R.id.progressBarUpcoming);
         upcomingMovies = new ArrayList<>();
-        upcomingMovieAdapter = new UpcomingMovieAdapter(upcomingMovies, this);
+        upcomingMovieAdapter = new FetchMoviesAdapter(upcomingMovies, this);
         recyclerViewUpcoming.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerViewUpcoming.setAdapter(upcomingMovieAdapter);
 
+        recyclerViewNowPlaying = view.findViewById(R.id.recyclerViewNowPlaying);
+        progressBarNowPlaying = view.findViewById(R.id.progressBarNowPlaying);
+        nowPlayingMovies = new ArrayList<>();
+        nowPlayingMovieAdapter = new FetchMoviesAdapter(nowPlayingMovies, this);
+        recyclerViewNowPlaying.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewNowPlaying.setAdapter(nowPlayingMovieAdapter);
+
         txtSeeAllTopMovies = view.findViewById(R.id.txtSeeAllTopMovies);
         txtSeeAllUpcoming = view.findViewById(R.id.txtSeeAllUpcoming);
+        txtSeeAllNowPlaying = view.findViewById(R.id.txtSeeAllNowPlaying);
         txtSeeAllTopMovies.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), SeeAllActivity.class);
             intent.putExtra("titleTopMovie", "Top Movies");
@@ -116,11 +129,17 @@ public class ExplorerFragment extends Fragment {
             intent.putExtra("titleUpcomingMovie", "Upcoming Movies");
             startActivity(intent);
         });
+        txtSeeAllNowPlaying.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SeeAllActivity.class);
+            intent.putExtra("titleNowPlayingMovie", "Now Playing Movies");
+            startActivity(intent);
+        });
 
         bannerSlider();
         fetchMovies();
         fetchTopMovies();
         fetchUpcomingMovies();
+        fetchNowPlayingMovies();
         edtSearch.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 Fragment selectedFragment = null;
@@ -181,8 +200,7 @@ public class ExplorerFragment extends Fragment {
     }
 
     private void fetchMovies() {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<SliderResponse> call = movieApi.getPopularMovies(BEARER_TOKEN, "en-US", 1);
+        Call<SliderResponse> call = movieApi.getPopularMovies(MovieClient.BEARER_TOKEN, "en-US", 1);
 
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
@@ -203,8 +221,7 @@ public class ExplorerFragment extends Fragment {
     }
 
     private void fetchTopMovies() {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<MovieResponse> call = movieApi.getTopMovies(BEARER_TOKEN, "en-US", 1);
+        Call<MovieResponse> call = movieApi.getTopMovies(MovieClient.BEARER_TOKEN, "en-US", 1);
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -224,8 +241,7 @@ public class ExplorerFragment extends Fragment {
     }
 
     private void fetchUpcomingMovies() {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<MovieResponse> call = movieApi.getUpcomingMovies(BEARER_TOKEN, "en-US", 1);
+        Call<MovieResponse> call = movieApi.getUpcomingMovies(MovieClient.BEARER_TOKEN, "en-US", 1);
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -234,6 +250,26 @@ public class ExplorerFragment extends Fragment {
                     upcomingMovies.addAll(response.body().getResults());
                     upcomingMovieAdapter.notifyDataSetChanged();
                     progressBarUpcoming.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
+                Log.e("API_ERROR", "Lỗi: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchNowPlayingMovies() {
+        Call<MovieResponse> call = movieApi.getNowPlayingMovies(MovieClient.BEARER_TOKEN, "en-US", 1);
+        call.enqueue(new Callback<>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    nowPlayingMovies.addAll(response.body().getResults());
+                    nowPlayingMovieAdapter.notifyDataSetChanged();
+                    progressBarNowPlaying.setVisibility(View.GONE);
                 }
             }
 

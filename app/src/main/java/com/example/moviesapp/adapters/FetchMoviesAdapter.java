@@ -21,23 +21,23 @@ import com.example.moviesapp.fragment.ExplorerFragment;
 
 import java.util.List;
 
-public class UpcomingMovieAdapter extends RecyclerView.Adapter<UpcomingMovieAdapter.ViewHolder> {
+public class FetchMoviesAdapter extends RecyclerView.Adapter<FetchMoviesAdapter.ViewHolder> {
     private final List<Movie> movies;
     private final ExplorerFragment context;
 
-    public UpcomingMovieAdapter(List<Movie> movies, ExplorerFragment context) {
+    public FetchMoviesAdapter(List<Movie> movies, ExplorerFragment context) {
         this.movies = movies;
         this.context = context;
     }
 
     @NonNull
     @Override
-    public UpcomingMovieAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public FetchMoviesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(context.getContext()).inflate(R.layout.item_movie, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UpcomingMovieAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FetchMoviesAdapter.ViewHolder holder, int position) {
         holder.setData(movies.get(position));
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context.getContext(), DetailActivity.class);
