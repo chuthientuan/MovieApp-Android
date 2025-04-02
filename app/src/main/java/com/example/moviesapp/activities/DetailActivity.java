@@ -53,12 +53,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DetailActivity extends AppCompatActivity {
-    private static final String BEARER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYmU0MTRlYTZmZDg5NjFmOGQ2Y2Y0NjQ2MGJhMTgyZCIsIm5iZiI6MTc0MDM4NzQ3Ni42OTUwMDAyLCJzdWIiOiI2N2JjMzQ5NDc0MTE1MmIwNDIwYWJjMGEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.jXswQOY-SSxrfNtB5DlxJt6MWHsqGaUieY9xvjV-lOs";
     ImageView backImg, moviePic;
     RecyclerView recyclerViewCast;
     BlurView blurView;
     RecyclerView recyclerViewGenre;
     List<Video> videos;
+    private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
     private TextView txtTitle, txtMovieTimes, movieSummary, txtImbd;
     private ActorAdapter actorAdapter;
     private List<Actor> actors;
@@ -120,8 +120,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void fetchMovieDetails() {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<DetailMovie> call = movieApi.getMovieDetail(BEARER_TOKEN, movieId, "en-US");
+        Call<DetailMovie> call = movieApi.getMovieDetail(MovieClient.BEARER_TOKEN, movieId, "en-US");
         call.enqueue(new Callback<>() {
             @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
             @Override
@@ -174,8 +173,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void fetchActor() {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<DetailMovie> call = movieApi.getMovieCredits(BEARER_TOKEN, movieId, "en-US");
+        Call<DetailMovie> call = movieApi.getMovieCredits(MovieClient.BEARER_TOKEN, movieId, "en-US");
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -199,8 +197,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void fetchTrailer() {
-        MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
-        Call<DetailMovie> call = movieApi.getMovieTrailer(BEARER_TOKEN, movieId, "en-US");
+        Call<DetailMovie> call = movieApi.getMovieTrailer(MovieClient.BEARER_TOKEN, movieId, "en-US");
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<DetailMovie> call, @NonNull Response<DetailMovie> response) {
@@ -209,17 +206,16 @@ public class DetailActivity extends AppCompatActivity {
                     Optional<Video> bestTrailer = detailMovie.getVideos().stream()
                             .filter(video -> "Trailer".equals(video.getType()))
                             .max(Comparator.comparing(Video::getSize));
-                    bestTrailer.ifPresent(video -> {
+                    bestTrailer.ifPresentOrElse(video -> {
                         String videoKey = video.getKey();
                         btnWatchTrailer.setOnClickListener(v -> {
-                            if (videoKey != null && !videoKey.isEmpty()) {
-                                Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
-                                intent.putExtra("videoKey", videoKey);
-                                startActivity(intent);
-                            } else {
-                                Toast.makeText(DetailActivity.this, "Hiện không có trailer", Toast.LENGTH_SHORT).show();
-                            }
+                            Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
+                            intent.putExtra("videoKey", videoKey);
+                            startActivity(intent);
                         });
+                    }, () -> {
+                        btnWatchTrailer.setOnClickListener(v ->
+                                Toast.makeText(DetailActivity.this, "Hiện không có trailer", Toast.LENGTH_SHORT).show());
                     });
                 }
             }
