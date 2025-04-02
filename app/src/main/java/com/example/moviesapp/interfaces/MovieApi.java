@@ -32,6 +32,13 @@ public interface MovieApi {
             @Query("page") int page
     );
 
+    @GET("/3/movie/now_playing")
+    Call<MovieResponse> getNowPlayingMovies(
+            @Header("Authorization") String authToken,
+            @Query("language") String language,
+            @Query("page") int page
+    );
+
     @GET("/3/movie/{movie_id}")
     Call<DetailMovie> getMovieDetail(
             @Header("Authorization") String authToken,
