@@ -53,6 +53,7 @@ dependencies {
     implementation(platform(libs.firebase.bom.v33110))
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
+    implementation(libs.lottie)
     implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.1")
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
