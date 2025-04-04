@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -19,6 +20,9 @@ import com.google.firebase.auth.FirebaseUser;
 public class LoginActivity extends AppCompatActivity {
     EditText edtEmail, edtPassword;
     Button btnLogin;
+    TextView txtRegister;
+    boolean isLogin = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,8 +35,21 @@ public class LoginActivity extends AppCompatActivity {
         });
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
+        txtRegister = findViewById(R.id.txtRegister);
         btnLogin = findViewById(R.id.btnLogin);
+
+        txtRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
         btnLogin.setOnClickListener(v -> {
+            String email = edtEmail.getText().toString();
+            String password = edtPassword.getText().toString();
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập email và mật khẩu", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            loginUser(email, password);
 
         });
     }
@@ -43,9 +60,15 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
-                        Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                        if (user != null) {
+                            isLogin = true;
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                            Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Login failed!", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
