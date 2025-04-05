@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,10 +31,12 @@ import com.example.moviesapp.adapters.FetchMoviesAdapter;
 import com.example.moviesapp.adapters.SlidersAdapter;
 import com.example.moviesapp.entities.Movie;
 import com.example.moviesapp.entities.SliderItems;
+import com.example.moviesapp.entities.User;
 import com.example.moviesapp.interfaces.MovieApi;
 import com.example.moviesapp.response.MovieResponse;
 import com.example.moviesapp.response.SliderResponse;
 import com.example.moviesapp.retrofit.MovieClient;
+import com.example.moviesapp.util.FirebaseUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +55,10 @@ public class ExplorerFragment extends Fragment {
             viewPager2.setCurrentItem(viewPager2.getCurrentItem() + 1);
         }
     };
+    private User currentUser;
     private EditText edtSearch;
+    private TextView txtUserName;
+    private TextView txtEmail;
     private ImageView backImg;
     private List<SliderItems> sliderItems;
     private SlidersAdapter slidersAdapter;
@@ -91,6 +97,8 @@ public class ExplorerFragment extends Fragment {
         slidersAdapter = new SlidersAdapter(sliderItems, viewPager2);
         viewPager2.setAdapter(slidersAdapter);
         progressBarBanner = view.findViewById(R.id.progressBarBanner);
+        txtUserName = view.findViewById(R.id.txtUserName);
+        txtEmail = view.findViewById(R.id.txtEmail);
 
         recyclerViewTopMovies = view.findViewById(R.id.recyclerViewTopMovies);
         progressBarTopMovies = view.findViewById(R.id.progressBarTopMovies);
@@ -135,6 +143,7 @@ public class ExplorerFragment extends Fragment {
             startActivity(intent);
         });
 
+        loadUserProfile();
         bannerSlider();
         fetchMovies();
         fetchTopMovies();
@@ -146,6 +155,8 @@ public class ExplorerFragment extends Fragment {
                 selectedFragment = new SearchFragment();
                 requireActivity().findViewById(R.id.scrollView).setVisibility(View.GONE);
                 requireActivity().findViewById(R.id.fragment_search).setVisibility(View.VISIBLE);
+                requireActivity().findViewById(R.id.layoutProfile).setVisibility(View.GONE);
+                requireActivity().findViewById(R.id.chipNavigationBar).setVisibility(View.GONE);
                 requireActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_search, new SearchFragment())
                         .addToBackStack(null)
@@ -157,6 +168,8 @@ public class ExplorerFragment extends Fragment {
             hideKeyboard();
             requireActivity().findViewById(R.id.scrollView).setVisibility(View.VISIBLE);
             requireActivity().findViewById(R.id.fragment_search).setVisibility(View.GONE);
+            requireActivity().findViewById(R.id.layoutProfile).setVisibility(View.VISIBLE);
+            requireActivity().findViewById(R.id.chipNavigationBar).setVisibility(View.VISIBLE);
             backImg.setVisibility(View.GONE);
             requireActivity().getSupportFragmentManager().popBackStack();
             edtSearch.setText("");
@@ -199,9 +212,22 @@ public class ExplorerFragment extends Fragment {
         slideHandler.postDelayed(slidersRunnable, 2000);
     }
 
+    private void loadUserProfile() {
+        FirebaseUtil.getDataUser().get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                currentUser = task.getResult().getValue(User.class);
+                if (currentUser != null) {
+                    txtEmail.setText(currentUser.getEmail());
+                    txtUserName.setText(currentUser.getUserName());
+                }
+            } else {
+                Toast.makeText(getContext(), "Failed to load user profile", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void fetchMovies() {
         Call<SliderResponse> call = movieApi.getPopularMovies(MovieClient.BEARER_TOKEN, "en-US", 1);
-
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
