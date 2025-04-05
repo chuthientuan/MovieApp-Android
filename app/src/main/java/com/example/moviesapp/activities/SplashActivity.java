@@ -30,14 +30,14 @@ public class SplashActivity extends AppCompatActivity {
         animationView = findViewById(R.id.animationView);
         animationView.playAnimation();
 
-            new Handler().postDelayed(() -> {
-                if (FirebaseUtil.isLogginedIn()) {
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                } else {
-                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-                }
-                finish();
-            }, 2000);
+        new Handler().postDelayed(() -> {
+            if (FirebaseUtil.isLogginedIn()) {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            } else {
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+            }
+            finish();
+        }, 2000);
 
     }
 }
