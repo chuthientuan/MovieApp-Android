@@ -59,6 +59,7 @@ public class ExplorerFragment extends Fragment {
     private EditText edtSearch;
     private TextView txtUserName;
     private TextView txtEmail;
+    private ImageView imgAvatar;
     private ImageView backImg;
     private List<SliderItems> sliderItems;
     private SlidersAdapter slidersAdapter;
@@ -99,6 +100,7 @@ public class ExplorerFragment extends Fragment {
         progressBarBanner = view.findViewById(R.id.progressBarBanner);
         txtUserName = view.findViewById(R.id.txtUserName);
         txtEmail = view.findViewById(R.id.txtEmail);
+        imgAvatar = view.findViewById(R.id.imgAvatar);
 
         recyclerViewTopMovies = view.findViewById(R.id.recyclerViewTopMovies);
         progressBarTopMovies = view.findViewById(R.id.progressBarTopMovies);
@@ -212,13 +214,17 @@ public class ExplorerFragment extends Fragment {
         slideHandler.postDelayed(slidersRunnable, 2000);
     }
 
+    @SuppressLint("SetTextI18n")
     private void loadUserProfile() {
         FirebaseUtil.getDataUser().get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 currentUser = task.getResult().getValue(User.class);
                 if (currentUser != null) {
                     txtEmail.setText(currentUser.getEmail());
-                    txtUserName.setText(currentUser.getUserName());
+                    txtUserName.setText("Hello " + currentUser.getUserName());
+                    if (currentUser.getAvatar() == null) {
+                        imgAvatar.setImageResource(R.drawable.avatar_default);
+                    }
                 }
             } else {
                 Toast.makeText(getContext(), "Failed to load user profile", Toast.LENGTH_SHORT).show();
