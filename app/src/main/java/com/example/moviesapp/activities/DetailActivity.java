@@ -211,6 +211,8 @@ public class DetailActivity extends AppCompatActivity {
                         btnWatchTrailer.setOnClickListener(v -> {
                             Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
                             intent.putExtra("videoKey", videoKey);
+                            intent.putExtra("title", txtTitle.getText().toString());
+                            intent.putExtra("description", movieSummary.getText().toString());
                             startActivity(intent);
                         });
                     }, () -> {
