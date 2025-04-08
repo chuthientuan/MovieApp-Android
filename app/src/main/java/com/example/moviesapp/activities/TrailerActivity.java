@@ -1,11 +1,13 @@
 package com.example.moviesapp.activities;
 
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -32,6 +34,8 @@ public class TrailerActivity extends AppCompatActivity {
     private YouTubePlayerView youtubePlayerView;
     private String videoKey;
     private FrameLayout full_screen_view_container;
+    private TextView trailerTitle;
+    private TextView trailerDescription;
     private ImageView backImg;
     private boolean isFullScreen = false;
     OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
@@ -45,6 +49,7 @@ public class TrailerActivity extends AppCompatActivity {
         }
     };
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +62,10 @@ public class TrailerActivity extends AppCompatActivity {
         });
         backImg = findViewById(R.id.backImg);
         backImg.setOnClickListener(v -> finish());
+        trailerTitle = findViewById(R.id.trailerTitle);
+        trailerDescription = findViewById(R.id.trailerDescription);
+        trailerTitle.setText(getIntent().getStringExtra("title") + " - Official Trailer");
+        trailerDescription.setText(getIntent().getStringExtra("description"));
         videoKey = getIntent().getStringExtra("videoKey");
         youtubePlayerView = findViewById(R.id.youtubePlayerView);
         full_screen_view_container = findViewById(R.id.full_screen_view_container);

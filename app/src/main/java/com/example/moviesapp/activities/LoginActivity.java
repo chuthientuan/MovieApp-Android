@@ -18,9 +18,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText edtEmail, edtPassword;
-    Button btnLogin;
-    TextView txtRegister;
+    private EditText edtEmail;
+    private EditText edtPassword;
+    private Button btnLogin;
+    private TextView txtRegister;
     boolean isLogin = false;
 
     @Override
@@ -46,11 +47,10 @@ public class LoginActivity extends AppCompatActivity {
             String email = edtEmail.getText().toString();
             String password = edtPassword.getText().toString();
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập email và mật khẩu", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
             loginUser(email, password);
-
         });
     }
 
@@ -68,7 +68,8 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(this, "Login failed!", Toast.LENGTH_SHORT).show();
+                        String errorMessage = task.getException().getMessage();
+                        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
                     }
                 });
     }

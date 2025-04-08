@@ -45,7 +45,6 @@ public class ProfileFragment extends Fragment {
 
     private User currentUser;
     private  Button btnLogout;
-    private static final String BEARER_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYmU0MTRlYTZmZDg5NjFmOGQ2Y2Y0NjQ2MGJhMTgyZCIsIm5iZiI6MTc0MDM4NzQ3Ni42OTUwMDAyLCJzdWIiOiI2N2JjMzQ5NDc0MTE1MmIwNDIwYWJjMGEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.jXswQOY-SSxrfNtB5DlxJt6MWHsqGaUieY9xvjV-lOs";
     private Movie movie;
 
     private TextView username_text;
@@ -102,6 +101,7 @@ public class ProfileFragment extends Fragment {
                     Intent intent = new Intent(getActivity(), LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
+                    FirebaseUtil.logout();
                 })
                 .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
                 .show();
@@ -109,11 +109,11 @@ public class ProfileFragment extends Fragment {
 
     private void loadFavoriteMovies() {
         // Call API to get favorite movies
-        Call<MovieResponse> call = apiService.getTopMovies(BEARER_TOKEN, "en-US", 1);
-        call.enqueue(new Callback<MovieResponse>() {
+        Call<MovieResponse> call = apiService.getTopMovies(MovieClient.BEARER_TOKEN, "en-US", 1);
+        call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
                 if (response.isSuccessful()) {
                     MovieResponse movieResponse = response.body();
                     if (movieResponse != null) {
