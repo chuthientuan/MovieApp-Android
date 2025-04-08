@@ -78,6 +78,7 @@
                             android:textStyle="bold" />
 
                         <ImageView
+                            android:id="@+id/shareImg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
@@ -86,8 +87,9 @@
                             android:src="@drawable/share" />
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:id="@+id/bookmarkImg"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:layout_gravity="center_vertical"
                             app:tint="@color/white"
                             android:contentDescription="@string/app_name"

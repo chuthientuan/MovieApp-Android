@@ -1,5 +1,6 @@
 package com.example.moviesapp.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.example.moviesapp.R;
 import com.example.moviesapp.util.FirebaseUtil;
 
+@SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
     LottieAnimationView animationView;
 

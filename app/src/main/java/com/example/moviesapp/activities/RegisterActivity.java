@@ -20,7 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
-    EditText edtEmail, edtPassword, edtUserName;
+    EditText edtEmail, edtPassword, edtUserName, edtConfirmPassword;
     Button btnRegister;
     TextView txtLogin;
 
@@ -38,6 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         edtUserName = findViewById(R.id.edtUserName);
         btnRegister = findViewById(R.id.btnRegister);
+        edtConfirmPassword = findViewById(R.id.edtConfirmPassword);
         txtLogin = findViewById(R.id.txtLogin);
         txtLogin.setOnClickListener(v -> finish());
 
@@ -46,7 +47,11 @@ public class RegisterActivity extends AppCompatActivity {
             String email = edtEmail.getText().toString();
             String password = edtPassword.getText().toString();
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập email và mật khẩu", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!password.equals(edtConfirmPassword.getText().toString())) {
+                Toast.makeText(this, "Password does not match", Toast.LENGTH_SHORT).show();
                 return;
             }
             registerUser(email, password, userName);

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_color"
@@ -16,7 +15,6 @@
         android:paddingBottom="8dp"
         app:layout_constraintTop_toTopOf="parent">
 
-
         <TextView
             android:id="@+id/welcome_text"
             android:layout_width="wrap_content"
@@ -25,7 +23,7 @@
             android:text="Welcome Back"
             android:textColor="@color/white"
             android:textSize="20sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- User Profile Section - Improved layout -->
@@ -48,16 +46,25 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="My Information"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
@@ -91,19 +98,17 @@
                         android:id="@+id/username_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="username"
                         android:textColor="@color/white"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/email_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="user@example.com"
                         android:textColor="@color/white"
-                        android:textSize="14sp"/>
+                        android:textSize="14sp" />
 
 
                 </LinearLayout>
@@ -139,7 +144,7 @@
                     android:text="Favorite Movies"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/see_all_favorites"
@@ -149,7 +154,7 @@
                     android:text="See all"
                     android:textColor="@color/white"
                     android:textSize="14sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -159,7 +164,7 @@
                 android:layout_marginTop="8dp"
                 android:clipToPadding="false"
                 android:paddingStart="4dp"
-                android:paddingEnd="4dp"/>
+                android:paddingEnd="4dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
