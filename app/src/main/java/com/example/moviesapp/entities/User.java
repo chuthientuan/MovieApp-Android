@@ -7,17 +7,6 @@ public class User {
     private String userName;
     private String email;
     private String avatar;
-    private Map<String, String> favorites;
-
-    public User() {
-    }
-
-    public User(String userName, String email, String avatar) {
-        this.userName = userName;
-        this.email = email;
-        this.avatar = avatar;
-        this.favorites = new HashMap<>();
-    }
 
     public String getUserName() {
         return userName;
@@ -43,11 +32,25 @@ public class User {
         this.avatar = avatar;
     }
 
-    public Map<String, String> getFavorites() {
+    public Map<Integer, String> getFavorites() {
         return favorites;
     }
 
-    public void setFavorites(Map<String, String> favorites) {
+    public void setFavorites(Map<Integer, String> favorites) {
         this.favorites = favorites;
     }
+
+    private Map<Integer, String> favorites;
+
+    public User() {
+    }
+
+    public User(String userName, String email, String avatar) {
+        this.userName = userName;
+        this.email = email;
+        this.avatar = avatar;
+        this.favorites = new HashMap<>();
+    }
+
+
 }
