@@ -3,6 +3,7 @@ package com.example.moviesapp.activities;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ public class RegisterActivity extends AppCompatActivity {
     EditText edtEmail, edtPassword, edtUserName, edtConfirmPassword;
     Button btnRegister;
     TextView txtLogin;
+    private ImageView backImg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +40,11 @@ public class RegisterActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         edtUserName = findViewById(R.id.edtUserName);
         btnRegister = findViewById(R.id.btnRegister);
+        backImg = findViewById(R.id.backImg);
         edtConfirmPassword = findViewById(R.id.edtConfirmPassword);
         txtLogin = findViewById(R.id.txtLogin);
         txtLogin.setOnClickListener(v -> finish());
+        backImg.setOnClickListener(v -> finish());
 
         btnRegister.setOnClickListener(v -> {
             String userName = edtUserName.getText().toString();

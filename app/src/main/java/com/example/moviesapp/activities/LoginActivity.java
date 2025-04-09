@@ -18,11 +18,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
+    boolean isLogin = false;
     private EditText edtEmail;
     private EditText edtPassword;
     private Button btnLogin;
     private TextView txtRegister;
-    boolean isLogin = false;
+    private TextView txtForgetPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +38,13 @@ public class LoginActivity extends AppCompatActivity {
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
         txtRegister = findViewById(R.id.txtRegister);
+        txtForgetPassword = findViewById(R.id.txtForgetPassword);
         btnLogin = findViewById(R.id.btnLogin);
 
+        txtForgetPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ForgetPasswordActivity.class);
+            startActivity(intent);
+        });
         txtRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
