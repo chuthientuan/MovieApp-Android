@@ -1,12 +1,8 @@
 package com.example.moviesapp.fragment;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,11 +39,6 @@ import com.example.moviesapp.response.SliderResponse;
 import com.example.moviesapp.retrofit.MovieClient;
 import com.example.moviesapp.util.FirebaseUtil;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +47,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ExplorerFragment extends Fragment {
-    private final int REQUEST_CODE_STORAGE = 1;
     private final Handler slideHandler = new Handler();
     private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
     private ViewPager2 viewPager2;
