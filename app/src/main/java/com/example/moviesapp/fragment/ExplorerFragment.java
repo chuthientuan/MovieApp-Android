@@ -1,8 +1,12 @@
 package com.example.moviesapp.fragment;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -18,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +30,7 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.moviesapp.R;
 import com.example.moviesapp.activities.SeeAllActivity;
 import com.example.moviesapp.adapters.FetchMoviesAdapter;
@@ -38,6 +44,11 @@ import com.example.moviesapp.response.SliderResponse;
 import com.example.moviesapp.retrofit.MovieClient;
 import com.example.moviesapp.util.FirebaseUtil;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +57,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ExplorerFragment extends Fragment {
+    private final int REQUEST_CODE_STORAGE = 1;
     private final Handler slideHandler = new Handler();
     private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
     private ViewPager2 viewPager2;
@@ -83,6 +95,7 @@ public class ExplorerFragment extends Fragment {
     private TextView txtSeeAllTopMovies;
     private TextView txtSeeAllUpcoming;
     private TextView txtSeeAllNowPlaying;
+    private String selectedImagePath = "";
 
     @Nullable
     @Override
@@ -144,8 +157,6 @@ public class ExplorerFragment extends Fragment {
             intent.putExtra("titleNowPlayingMovie", "Now Playing Movies");
             startActivity(intent);
         });
-
-        loadUserProfile();
         bannerSlider();
         fetchMovies();
         fetchTopMovies();
@@ -178,6 +189,7 @@ public class ExplorerFragment extends Fragment {
             edtSearch.clearFocus();
             edtSearch.setFocusableInTouchMode(true);
         });
+        loadUserProfile();
     }
 
     private void bannerSlider() {
@@ -212,24 +224,6 @@ public class ExplorerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         slideHandler.postDelayed(slidersRunnable, 2000);
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void loadUserProfile() {
-        FirebaseUtil.getDataUser().get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                currentUser = task.getResult().getValue(User.class);
-                if (currentUser != null) {
-                    txtEmail.setText(currentUser.getEmail());
-                    txtUserName.setText("Hello " + currentUser.getUserName());
-                    if (currentUser.getAvatar() == null) {
-                        imgAvatar.setImageResource(R.drawable.avatar_default);
-                    }
-                }
-            } else {
-                Toast.makeText(getContext(), "Failed to load user profile", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void fetchMovies() {
@@ -318,5 +312,27 @@ public class ExplorerFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void loadUserProfile() {
+        FirebaseUtil.getDataUser().get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                currentUser = task.getResult().getValue(User.class);
+                if (currentUser != null) {
+                    txtEmail.setText(currentUser.getEmail());
+                    txtUserName.setText("Hello " + currentUser.getUserName());
+                    if (currentUser.getAvatar() != null && !currentUser.getAvatar().isEmpty()) {
+                        if (isAdded()) {
+                            Glide.with(this).load(currentUser.getAvatar()).into(imgAvatar);
+                        }
+                    } else {
+                        imgAvatar.setImageResource(R.drawable.avatar_default);
+                    }
+                }
+            } else {
+                Toast.makeText(getContext(), "Failed to load user profile", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

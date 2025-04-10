@@ -19,7 +19,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="70dp"
             android:layout_height="70dp"
-            app:cardBackgroundColor="@color/dark_blue"
+            app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="40dp">
 
             <ImageView
@@ -80,7 +80,6 @@
             android:layout_margin="16dp"
             android:background="@drawable/dark_blue_bg"
             android:drawableStart="@drawable/search"
-            android:drawableEnd="@drawable/microphone"
             android:drawablePadding="8dp"
             android:ems="10"
             android:hint="Search Movies"
