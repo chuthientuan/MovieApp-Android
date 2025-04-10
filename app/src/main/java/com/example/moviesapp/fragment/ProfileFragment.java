@@ -1,10 +1,7 @@
 package com.example.moviesapp.fragment;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,8 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,7 +39,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
-    private final int REQUEST_CODE_STORAGE = 1;
     private RecyclerView rvFavoriteMovies;
     private MovieAdapter movieAdapter;
     private MovieApi apiService;
@@ -59,7 +53,7 @@ public class ProfileFragment extends Fragment {
     private ImageView user_avatar;
     private TextView username_text;
     private TextView txtEdit;
-    private  TextView email_text;
+    private TextView email_text;
 
     @Nullable
     @Override
@@ -86,11 +80,11 @@ public class ProfileFragment extends Fragment {
         btnLogout.setOnClickListener(v -> showLogoutConfirmation());
         movies = new ArrayList<>();
         rvFavoriteMovies = view.findViewById(R.id.favorites_recycler);
-        rvFavoriteMovies.setLayoutManager(new LinearLayoutManager(getContext() , LinearLayoutManager.HORIZONTAL,false));
-        movieAdapter = new MovieAdapter(movies ,  getContext());
+        rvFavoriteMovies.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        movieAdapter = new MovieAdapter(movies, getContext());
         rvFavoriteMovies.setAdapter(movieAdapter);
 
-        See_all_favorites  = view.findViewById(R.id.see_all_favorites);
+        See_all_favorites = view.findViewById(R.id.see_all_favorites);
         See_all_favorites.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), SeeAllActivity.class);
             intent.putExtra("", "");
@@ -108,6 +102,7 @@ public class ProfileFragment extends Fragment {
         loadFavoriteMovies();
         loadUserProfile();
     }
+
     private void showLogoutConfirmation() {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Xác nhận đăng xuất")

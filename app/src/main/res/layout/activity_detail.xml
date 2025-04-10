@@ -91,9 +91,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_gravity="center_vertical"
-                            app:tint="@color/white"
                             android:contentDescription="@string/app_name"
-                            android:src="@drawable/bookmark" />
+                            android:src="@drawable/bookmark_white" />
                     </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
