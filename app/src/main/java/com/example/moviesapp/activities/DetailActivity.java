@@ -56,6 +56,7 @@ public class DetailActivity extends AppCompatActivity {
     ImageView backImg, moviePic;
     RecyclerView recyclerViewCast;
     BlurView blurView;
+    private ImageView shareImg, bookmarkImg;
     RecyclerView recyclerViewGenre;
     List<Video> videos;
     private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
@@ -67,6 +68,7 @@ public class DetailActivity extends AppCompatActivity {
     private GenreAdapter genreAdapter;
     private List<Genre> genres;
     private DetailMovie detailMovie;
+    private String videoKey = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,8 @@ public class DetailActivity extends AppCompatActivity {
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         backImg = findViewById(R.id.backImg);
+        shareImg = findViewById(R.id.shareImg);
+        bookmarkImg = findViewById(R.id.bookmarkImg);
         moviePic = findViewById(R.id.moviePic);
         txtTitle = findViewById(R.id.txtTitle);
         txtMovieTimes = findViewById(R.id.txtMovieTimes);
@@ -207,7 +211,7 @@ public class DetailActivity extends AppCompatActivity {
                             .filter(video -> "Trailer".equals(video.getType()))
                             .max(Comparator.comparing(Video::getSize));
                     bestTrailer.ifPresentOrElse(video -> {
-                        String videoKey = video.getKey();
+                        videoKey = video.getKey();
                         btnWatchTrailer.setOnClickListener(v -> {
                             Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
                             intent.putExtra("videoKey", videoKey);
@@ -217,7 +221,19 @@ public class DetailActivity extends AppCompatActivity {
                         });
                     }, () -> {
                         btnWatchTrailer.setOnClickListener(v ->
-                                Toast.makeText(DetailActivity.this, "Hiện không có trailer", Toast.LENGTH_SHORT).show());
+                                Toast.makeText(DetailActivity.this, "Not found trailer", Toast.LENGTH_SHORT).show());
+                    });
+                    shareImg.setOnClickListener(v -> {
+                        if (videoKey != null) {
+                            String youtubeUrl = "https://www.youtube.com/watch?v=" + videoKey;
+                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                            shareIntent.setType("text/plain");
+                            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Trailer: " + txtTitle.getText().toString());
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, youtubeUrl);
+                            startActivity(Intent.createChooser(shareIntent, "Chia sẻ trailer qua"));
+                        } else {
+                            Toast.makeText(DetailActivity.this, "Not found trailer to share", Toast.LENGTH_SHORT).show();
+                        }
                     });
                 }
             }
