@@ -1,23 +1,31 @@
 package com.example.moviesapp.fragment;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.moviesapp.R;
+import com.example.moviesapp.activities.EditProfileActivity;
 import com.example.moviesapp.activities.LoginActivity;
 import com.example.moviesapp.activities.SeeAllActivity;
 import com.example.moviesapp.adapters.MovieAdapter;
@@ -36,6 +44,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
+    private final int REQUEST_CODE_STORAGE = 1;
     private RecyclerView rvFavoriteMovies;
     private MovieAdapter movieAdapter;
     private MovieApi apiService;
@@ -44,11 +53,12 @@ public class ProfileFragment extends Fragment {
     private List<Movie> movies;
 
     private User currentUser;
-    private  Button btnLogout;
+    private Button btnLogout;
     private Movie movie;
 
+    private ImageView user_avatar;
     private TextView username_text;
-
+    private TextView txtEdit;
     private  TextView email_text;
 
     @Nullable
@@ -65,6 +75,12 @@ public class ProfileFragment extends Fragment {
         // Initialize views
         username_text = view.findViewById(R.id.username_text);
         email_text = view.findViewById(R.id.email_text);
+        user_avatar = view.findViewById(R.id.user_avatar);
+        txtEdit = view.findViewById(R.id.txtEdit);
+        txtEdit.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+            startActivity(intent);
+        });
 
         btnLogout = view.findViewById(R.id.btn_logout);
         btnLogout.setOnClickListener(v -> showLogoutConfirmation());
@@ -86,7 +102,6 @@ public class ProfileFragment extends Fragment {
             Intent intent = new Intent(getActivity(), SeeAllActivity.class);
             startActivity(intent);
         });
-
         // Initialize API service
         apiService = MovieClient.getRetrofit().create(MovieApi.class);
         // Load favorite movies
@@ -141,13 +156,15 @@ public class ProfileFragment extends Fragment {
                 if (currentUser != null) {
                     email_text.setText(currentUser.getEmail());
                     username_text.setText(currentUser.getUserName());
+                    if (currentUser.getAvatar() != null && !currentUser.getAvatar().isEmpty()) {
+                        Glide.with(this).load(currentUser.getAvatar()).into(user_avatar);
+                    } else {
+                        user_avatar.setImageResource(R.drawable.avatar_default);
+                    }
                 }
             } else {
                 Toast.makeText(getContext(), "Failed to load user profile", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-
-
 }

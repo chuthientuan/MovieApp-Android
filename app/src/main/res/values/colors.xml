@@ -5,4 +5,9 @@
     <color name="main_color">#252B45</color>
     <color name="dark_blue">#414863</color>
     <color name="red">#D74342</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_hint">#B0BEC5</color>
+    <color name="box_stroke">#90CAF9</color>
+    <color name="input_background">#2F354D</color>
+    <color name="card_background">#EEEEEE</color>
 </resources>
