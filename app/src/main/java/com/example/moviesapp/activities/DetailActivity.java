@@ -37,6 +37,7 @@ import com.example.moviesapp.entities.Genre;
 import com.example.moviesapp.entities.Video;
 import com.example.moviesapp.interfaces.MovieApi;
 import com.example.moviesapp.retrofit.MovieClient;
+import com.example.moviesapp.util.FirebaseUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,9 +57,8 @@ public class DetailActivity extends AppCompatActivity {
     ImageView backImg, moviePic;
     RecyclerView recyclerViewCast;
     BlurView blurView;
-    private ImageView shareImg, bookmarkImg;
     RecyclerView recyclerViewGenre;
-    List<Video> videos;
+    private ImageView shareImg, bookmarkImg;
     private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
     private TextView txtTitle, txtMovieTimes, movieSummary, txtImbd;
     private ActorAdapter actorAdapter;
@@ -69,6 +69,7 @@ public class DetailActivity extends AppCompatActivity {
     private List<Genre> genres;
     private DetailMovie detailMovie;
     private String videoKey = null;
+    private boolean isFavorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,10 +118,20 @@ public class DetailActivity extends AppCompatActivity {
 
         movieId = getIntent().getIntExtra("movieId", 0);
         backImg.setOnClickListener(v -> finish());
-        videos = new ArrayList<>();
+        bookmarkImg.setOnClickListener(v -> {
+            isFavorite = !isFavorite;
+            if (isFavorite) {
+                addToFavorites(String.valueOf(movieId), txtTitle.getText().toString());
+                bookmarkImg.setImageResource(R.drawable.bookmark_yellow);
+            } else {
+                removeFromFavorites(String.valueOf(movieId));
+                bookmarkImg.setImageResource(R.drawable.bookmark_white);
+            }
+        });
         fetchMovieDetails();
         fetchActor();
         fetchTrailer();
+        checkIfFavorite(String.valueOf(movieId));
     }
 
     private void fetchMovieDetails() {
@@ -243,5 +254,35 @@ public class DetailActivity extends AppCompatActivity {
                 Log.e("API_ERROR", "Lỗi: " + t.getMessage());
             }
         });
+    }
+
+    private void addToFavorites(String movieId, String movieTitle) {
+        FirebaseUtil.getDataUser().child("favorites").child(movieId)
+                .setValue(movieTitle)
+                .addOnSuccessListener(avoid -> {
+                })
+                .addOnFailureListener(e -> Toast.makeText(DetailActivity.this, "Failed to add to favorites", Toast.LENGTH_SHORT).show());
+    }
+
+    private void removeFromFavorites(String movieId) {
+        FirebaseUtil.getDataUser().child("favorites").child(movieId)
+                .removeValue()
+                .addOnSuccessListener(avoid -> {
+                })
+                .addOnFailureListener(e -> Toast.makeText(DetailActivity.this, "Failed to remove from favorites", Toast.LENGTH_SHORT).show());
+    }
+
+    private void checkIfFavorite(String movieId) {
+        FirebaseUtil.getDataUser().child("favorites").child(movieId)
+                .get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        isFavorite = true;
+                        bookmarkImg.setImageResource(R.drawable.bookmark_yellow);
+                    } else {
+                        isFavorite = false;
+                        bookmarkImg.setImageResource(R.drawable.bookmark_white);
+                    }
+                });
     }
 }

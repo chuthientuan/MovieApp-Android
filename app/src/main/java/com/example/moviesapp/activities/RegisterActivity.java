@@ -15,10 +15,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.moviesapp.R;
 import com.example.moviesapp.entities.User;
+import com.example.moviesapp.util.FirebaseUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
     EditText edtEmail, edtPassword, edtUserName, edtConfirmPassword;
@@ -71,8 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
                         if (user != null) {
                             String userId = user.getUid();
                             User userProfile = new User(userName, email, "");
-                            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
-                            usersRef.setValue(userProfile)
+                            FirebaseUtil.getDataUser().setValue(userProfile)
                                     .addOnSuccessListener(aVoid ->
                                             Toast.makeText(this, "Register successfully!", Toast.LENGTH_SHORT).show())
                                     .addOnFailureListener(e ->
