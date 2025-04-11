@@ -1,6 +1,8 @@
 package com.example.moviesapp.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -16,130 +17,125 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moviesapp.R;
 import com.example.moviesapp.adapters.MovieAdapter;
+import com.example.moviesapp.entities.DetailMovie;
 import com.example.moviesapp.entities.Movie;
-import com.example.moviesapp.repository.FavoriteRepository;
-import com.example.moviesapp.retrofit.MovieApiService;
+import com.example.moviesapp.entities.User;
+import com.example.moviesapp.interfaces.MovieApi;
 import com.example.moviesapp.retrofit.MovieClient;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.moviesapp.util.FirebaseUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class FavoritesFragment extends Fragment implements MovieAdapter.OnFavoriteClickListener {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class FavoritesFragment extends Fragment {
     private RecyclerView rvFavorites;
     private ProgressBar progressBar;
     private LinearLayout layoutEmpty;
     private MovieAdapter adapter;
     private List<Movie> favoriteMovies;
-    private FavoriteRepository favoriteRepository;
-    private MovieApiService movieApiService;
+    private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
+    private int loadedCount = 0;
+    private int totalFavorites = 0;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+        return inflater.inflate(R.layout.fragment_favorites, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         initViews(view);
-        initMovieService();
         setupRecyclerView();
         loadFavoriteMovies();
-        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (FirebaseUtil.shouldReloadFavorites) {
+            loadFavoriteMovies();
+            FirebaseUtil.shouldReloadFavorites = false;
+        }
     }
 
     private void initViews(View view) {
         rvFavorites = view.findViewById(R.id.rvFavorites);
         progressBar = view.findViewById(R.id.progressBar);
         layoutEmpty = view.findViewById(R.id.layoutEmpty);
-        favoriteRepository = new FavoriteRepository();
         favoriteMovies = new ArrayList<>();
     }
 
-    private void initMovieService() {
-        movieApiService = MovieClient.getRetrofit().create(MovieApiService.class);
-    }
-
     private void setupRecyclerView() {
-        adapter = new MovieAdapter(favoriteMovies, requireContext(), this);
+        adapter = new MovieAdapter(favoriteMovies, requireContext());
         rvFavorites.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         rvFavorites.setAdapter(adapter);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadFavoriteMovies() {
         showLoading();
-        favoriteRepository.getFavoriteIds(new FavoriteRepository.OnFavoriteIdsLoaded() {
-            @Override
-            public void onLoaded(List<Integer> favoriteIds) {
-                if (favoriteIds.isEmpty()) {
+        favoriteMovies.clear();
+        loadedCount = 0;
+        adapter.notifyDataSetChanged();
+        FirebaseUtil.getDataUser().get().addOnSuccessListener(dataSnapshot -> {
+            User currentUser = dataSnapshot.getValue(User.class);
+            if (currentUser != null && currentUser.getFavorites() != null) {
+                totalFavorites = currentUser.getFavorites().size();
+                if (totalFavorites == 0) {
                     showEmptyState();
-                } else {
-                    loadMovieDetails(favoriteIds);
+                    return;
                 }
-            }
-
-            @Override
-            public void onError(String error) {
-                showError(error);
+                for (String movieId : currentUser.getFavorites().keySet()) {
+                    loadMovieDetails(Integer.parseInt(movieId));
+                }
+            } else {
+                showEmptyState();
             }
         });
     }
 
-    private void loadMovieDetails(List<Integer> movieIds) {
+    private void loadMovieDetails(int movieId) {
         showLoading();
-        favoriteMovies.clear();
-
-        final AtomicInteger loadedCount = new AtomicInteger(0);
-        final int totalMovies = movieIds.size();
-
-        for (Integer movieId : movieIds) {
-            movieApiService.getMovieById(movieId, MovieClient.BEARER_TOKEN).enqueue(new retrofit2.Callback<Movie>() {
-                @Override
-                public void onResponse(@NonNull retrofit2.Call<Movie> call, @NonNull retrofit2.Response<Movie> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        Movie movie = response.body();
-                        movie.setFavorite(true);
+        Call<DetailMovie> call = movieApi.getMovieDetail(MovieClient.BEARER_TOKEN, movieId, "en-US");
+        call.enqueue(new Callback<>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(@NonNull Call<DetailMovie> call, @NonNull Response<DetailMovie> response) {
+                loadedCount++;
+                if (response.isSuccessful() && response.body() != null) {
+                    DetailMovie movie = response.body();
+                    boolean isAlreadyInList = false;
+                    for (Movie m : favoriteMovies) {
+                        if (m.getId() == movie.getId()) {
+                            isAlreadyInList = true;
+                            break;
+                        }
+                    }
+                    if (!isAlreadyInList) {
                         favoriteMovies.add(movie);
                     }
-
-                    checkLoadingComplete(loadedCount.incrementAndGet(), totalMovies);
                 }
-
-                @Override
-                public void onFailure(@NonNull retrofit2.Call<Movie> call, @NonNull Throwable t) {
-                    checkLoadingComplete(loadedCount.incrementAndGet(), totalMovies);
-                }
-            });
-        }
-    }
-
-    @MainThread
-    private void checkLoadingComplete(int loadedCount, int totalMovies) {
-        if (loadedCount == totalMovies) {
-            if (favoriteMovies.isEmpty()) {
-                showEmptyState();
-            } else {
-                adapter.notifyDataSetChanged();
-                showContent();
-            }
-        }
-    }
-
-    @Override
-    public void onFavoriteClick(Movie movie) {
-        if (movie.isFavorite()) {
-            favoriteRepository.removeFromFavorites(movie, task -> {
-                if (task.isSuccessful()) {
-                    movie.setFavorite(false);
-                    favoriteMovies.remove(movie);
-                    adapter.notifyDataSetChanged();
+                if (loadedCount == totalFavorites) {
                     if (favoriteMovies.isEmpty()) {
                         showEmptyState();
+                    } else {
+                        adapter.notifyDataSetChanged();
+                        showContent();
                     }
-                    showMessage("Removed from favorites");
-                } else {
-                    showError("Failed to remove from favorites");
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<DetailMovie> call, @NonNull Throwable t) {
+                Log.e("API_ERROR", "Lỗi: " + t.getMessage());
+            }
+        });
     }
 
     private void showLoading() {
@@ -158,16 +154,5 @@ public class FavoritesFragment extends Fragment implements MovieAdapter.OnFavori
         progressBar.setVisibility(View.GONE);
         rvFavorites.setVisibility(View.GONE);
         layoutEmpty.setVisibility(View.VISIBLE);
-    }
-
-    private void showError(String message) {
-        showMessage(message);
-        showEmptyState();
-    }
-
-    private void showMessage(String message) {
-        if (getView() != null) {
-            Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
-        }
     }
 }

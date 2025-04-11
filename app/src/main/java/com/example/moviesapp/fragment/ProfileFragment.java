@@ -22,14 +22,14 @@ import com.bumptech.glide.Glide;
 import com.example.moviesapp.R;
 import com.example.moviesapp.activities.EditProfileActivity;
 import com.example.moviesapp.activities.LoginActivity;
-import com.example.moviesapp.activities.SeeAllActivity;
 import com.example.moviesapp.adapters.MovieAdapter;
+import com.example.moviesapp.entities.DetailMovie;
 import com.example.moviesapp.entities.Movie;
 import com.example.moviesapp.entities.User;
 import com.example.moviesapp.interfaces.MovieApi;
-import com.example.moviesapp.response.MovieResponse;
 import com.example.moviesapp.retrofit.MovieClient;
 import com.example.moviesapp.util.FirebaseUtil;
+import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,35 +41,36 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
     private RecyclerView rvFavoriteMovies;
     private MovieAdapter movieAdapter;
-    private MovieApi apiService;
 
-    private TextView See_all_favorites;
     private List<Movie> movies;
 
     private User currentUser;
     private Button btnLogout;
     private Movie movie;
-
+    private MovieApi movieApi = MovieClient.getRetrofit().create(MovieApi.class);
+    private TextView see_all_favorites;
     private ImageView user_avatar;
     private TextView username_text;
     private TextView txtEdit;
     private TextView email_text;
+    private int loadedCount = 0;
+    private int totalFavorites = 0;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflating layout cho Fragment và trả về view
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
+    @SuppressLint("CutPasteId")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d("API", "Thông báo log của API");
         // Initialize views
         username_text = view.findViewById(R.id.username_text);
         email_text = view.findViewById(R.id.email_text);
         user_avatar = view.findViewById(R.id.user_avatar);
+        see_all_favorites = view.findViewById(R.id.see_all_favorites);
         txtEdit = view.findViewById(R.id.txtEdit);
         txtEdit.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
@@ -84,22 +85,26 @@ public class ProfileFragment extends Fragment {
         movieAdapter = new MovieAdapter(movies, getContext());
         rvFavoriteMovies.setAdapter(movieAdapter);
 
-        See_all_favorites = view.findViewById(R.id.see_all_favorites);
-        See_all_favorites.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), SeeAllActivity.class);
-            intent.putExtra("", "");
-            startActivity(intent);
-        });
+        see_all_favorites.setOnClickListener(v -> {
+            ChipNavigationBar chipNavigationBar = requireActivity().findViewById(R.id.chipNavigationBar);
+            chipNavigationBar.setItemSelected(R.id.favorites, true);
 
-        // Set up "See all" click
-        view.findViewById(R.id.see_all_favorites).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), SeeAllActivity.class);
-            startActivity(intent);
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new FavoritesFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
-        // Initialize API service
-        apiService = MovieClient.getRetrofit().create(MovieApi.class);
-        // Load favorite movies
         loadFavoriteMovies();
+        loadUserProfile();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (FirebaseUtil.shouldReloadFavorites) {
+            loadFavoriteMovies();
+            FirebaseUtil.shouldReloadFavorites = false;
+        }
         loadUserProfile();
     }
 
@@ -117,28 +122,47 @@ public class ProfileFragment extends Fragment {
                 .show();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadFavoriteMovies() {
-        // Call API to get favorite movies
-        Call<MovieResponse> call = apiService.getTopMovies(MovieClient.BEARER_TOKEN, "en-US", 1);
+        loadedCount = 0;
+        movies.clear();
+        movieAdapter.notifyDataSetChanged();
+        FirebaseUtil.getDataUser().get().addOnSuccessListener(dataSnapshot -> {
+            User currentUser = dataSnapshot.getValue(User.class);
+            if (currentUser != null && currentUser.getFavorites() != null) {
+                for (String movieId : currentUser.getFavorites().keySet()) {
+                    loadMovieDetails(Integer.parseInt(movieId));
+                }
+            }
+        });
+    }
+
+    private void loadMovieDetails(int movieId) {
+        Call<DetailMovie> call = movieApi.getMovieDetail(MovieClient.BEARER_TOKEN, movieId, "en-US");
         call.enqueue(new Callback<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
-                if (response.isSuccessful()) {
-                    MovieResponse movieResponse = response.body();
-                    if (movieResponse != null) {
-                        // Xử lý dữ liệu ở đây
-                        movies.clear();
-                        movies.addAll(movieResponse.getResults());
+            public void onResponse(@NonNull Call<DetailMovie> call, @NonNull Response<DetailMovie> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    DetailMovie movie = response.body();
+
+                    boolean isAlreadyInList = false;
+                    for (Movie m : movies) {
+                        if (m.getId() == movie.getId()) {
+                            isAlreadyInList = true;
+                            break;
+                        }
+                    }
+
+                    if (!isAlreadyInList) {
+                        movies.add(movie);
                         movieAdapter.notifyDataSetChanged();
                     }
-                } else {
-                    Log.e("API_ERROR", "Error Code: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<DetailMovie> call, @NonNull Throwable t) {
                 Log.e("API_ERROR", "Lỗi: " + t.getMessage());
             }
         });
