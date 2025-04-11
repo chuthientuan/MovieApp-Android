@@ -11,6 +11,19 @@ public class Movie {
     private String poster_path;
     @SerializedName("backdrop_path")
     private String backdrop_path;
+    private boolean isFavorite;
+
+    public Movie() {
+        // Required empty constructor for Firebase
+    }
+
+    public Movie(int id, String title, String poster_path, String backdrop_path) {
+        this.id = id;
+        this.title = title;
+        this.poster_path = poster_path;
+        this.backdrop_path = backdrop_path;
+        this.isFavorite = false;
+    }
 
     public int getId() {
         return id;
@@ -42,5 +55,13 @@ public class Movie {
 
     public void setBackdrop_path(String backdrop_path) {
         this.backdrop_path = backdrop_path;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
     }
 }
