@@ -39,10 +39,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MovieAdapter.ViewHolder holder, int position) {
-        holder.setData(movies.get(position));
+        Movie movie = movies.get(position);
+        holder.setData(movie);
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context.getApplicationContext(), DetailActivity.class);
-            intent.putExtra("movieId", movies.get(position).getId());
+            intent.putExtra("movieId", movie.getId());
             context.startActivity(intent);
         });
     }
@@ -62,15 +63,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             txtName = itemView.findViewById(R.id.txtName);
         }
 
-        public void setData(Movie film) {
+        public void setData(Movie movie) {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions = requestOptions.transform(new CenterCrop(),
                     new RoundedCorners(30));
             Glide.with(context)
-                    .load(film.getPoster_path())
+                    .load(movie.getPoster_path())
                     .apply(requestOptions)
                     .into(image);
-            txtName.setText(film.getTitle());
+            txtName.setText(movie.getTitle());
         }
     }
 }

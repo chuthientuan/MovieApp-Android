@@ -5,6 +5,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class FirebaseUtil {
+    public static boolean shouldReloadFavorites = false;
+
     public static String getCurrentUserId() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
