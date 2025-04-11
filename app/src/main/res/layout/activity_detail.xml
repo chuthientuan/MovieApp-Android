@@ -176,7 +176,7 @@
                 android:drawableEnd="@drawable/play_circle"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:text="Watch now"
+                android:text="Watch trailer"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"

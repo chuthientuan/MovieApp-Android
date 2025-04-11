@@ -138,7 +138,7 @@ public class DetailActivity extends AppCompatActivity {
     private void fetchMovieDetails() {
         Call<DetailMovie> call = movieApi.getMovieDetail(MovieClient.BEARER_TOKEN, movieId, "en-US");
         call.enqueue(new Callback<>() {
-            @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
+            @SuppressLint({"SetTextI18n", "NotifyDataSetChanged", "DefaultLocale"})
             @Override
             public void onResponse(@NonNull Call<DetailMovie> call, @NonNull Response<DetailMovie> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -174,7 +174,13 @@ public class DetailActivity extends AppCompatActivity {
                     int minutes = runtime % 60;
                     txtMovieTimes.setText(yearString + " - " + hours + "h " + minutes + "m");
                     movieSummary.setText(detailMovie.getOverview());
-                    txtImbd.setText("IMDB: " + detailMovie.getVote_average());
+                    String imdbRating = detailMovie.getVote_average();
+                    if (imdbRating != null && !imdbRating.isEmpty()) {
+                        imdbRating = String.format("%.1f", Double.parseDouble(imdbRating));
+                    } else {
+                        imdbRating = "N/A";
+                    }
+                    txtImbd.setText("IMDB: " + imdbRating);
                     genres.clear();
                     genres.addAll(detailMovie.getGenres());
                     genreAdapter.notifyDataSetChanged();
