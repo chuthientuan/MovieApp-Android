@@ -131,6 +131,7 @@ public class DetailActivity extends AppCompatActivity {
         fetchMovieDetails();
         fetchActor();
         fetchTrailer();
+        FirebaseUtil.shouldReloadFavorites = true;
         checkIfFavorite(String.valueOf(movieId));
     }
 

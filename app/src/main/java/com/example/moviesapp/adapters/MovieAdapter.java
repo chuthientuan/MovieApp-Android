@@ -24,20 +24,10 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     private final List<Movie> movies;
     private final Context context;
-    private OnFavoriteClickListener favoriteClickListener;
-
-    public interface OnFavoriteClickListener {
-        void onFavoriteClick(Movie movie);
-    }
 
     public MovieAdapter(List<Movie> movies, Context context) {
-        this(movies, context, null);
-    }
-
-    public MovieAdapter(List<Movie> movies, Context context, OnFavoriteClickListener listener) {
         this.movies = movies;
         this.context = context;
-        this.favoriteClickListener = listener;
     }
 
     @NonNull
@@ -56,14 +46,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             intent.putExtra("movieId", movie.getId());
             context.startActivity(intent);
         });
-
-        if (favoriteClickListener != null) {
-            holder.btnFavorite.setVisibility(View.VISIBLE);
-            holder.btnFavorite.setOnClickListener(v ->
-                    favoriteClickListener.onFavoriteClick(movie));
-        } else {
-            holder.btnFavorite.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -74,13 +56,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;
         private final TextView txtName;
-        private final ImageView btnFavorite;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             txtName = itemView.findViewById(R.id.txtName);
-            btnFavorite = itemView.findViewById(R.id.btnFavorite);
         }
 
         public void setData(Movie movie) {
@@ -92,10 +72,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                     .apply(requestOptions)
                     .into(image);
             txtName.setText(movie.getTitle());
-
-            // Update favorite icon
-            btnFavorite.setImageResource(movie.isFavorite() ?
-                    R.drawable.bookmark_yellow : R.drawable.bookmark_white);
         }
     }
 }
