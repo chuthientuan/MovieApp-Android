@@ -6,16 +6,16 @@ MovieApp-Android is a modern Android application that allows users to explore, s
 
 ## Key Features
 
-🔍 Explore Movies: Browse movies by categories such as popular, top-rated, upcoming, etc.
-🎞️ Movie Details: View detailed information, ratings, trailers, and overviews of selected movies.
-👤 User Authentication: Sign in/up using Firebase Authentication.
-❤️ Favorites: Add and manage your favorite movies.
-📡 Data from TMDB API using Retrofit.
-📺 Movie Slider: Highlight trending or featured movies in a smooth image slider.
-🖼️ Image loading with Glide.
-🔥 Real-time features with Firebase.
-🌙 Dark Mode support.
-📱 Modern UI: Clean and responsive user interface using Material Design principles.
+- Explore Movies: Browse movies by categories such as popular, top-rated, upcoming, etc.
+- Movie Details: View detailed information, ratings, trailers, and overviews of selected movies.
+- User Authentication: Sign in/up using Firebase Authentication.
+- Favorites: Add and manage your favorite movies.
+- Data from TMDB API using Retrofit.
+- Movie Slider: Highlight trending or featured movies in a smooth image slider.
+- Image loading with Glide.
+- Real-time features with Firebase.
+- Dark Mode support.
+- Modern UI: Clean and responsive user interface using Material Design principles.
 
 ## Tech Stack
 
@@ -39,19 +39,19 @@ MovieApp-Android is a modern Android application that allows users to explore, s
 ## Screenshots
 
 <div >
-<img src="/fastlane/metadata/android/en-US/images/screenshots/1.jpg" width="50%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/2.jpg" width="50%" />
+<img src="/fastlane/metadata/android/en-US/images/screenshots/1.jpg" width="40%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/2.jpg" width="40%" />
 </div>
 <div >
-<img src="/fastlane/metadata/android/en-US/images/screenshots/3.jpg" width="50%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/4.jpg" width="50%" />
+<img src="/fastlane/metadata/android/en-US/images/screenshots/3.jpg" width="40%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/4.jpg" width="40%" />
 </div>
 <div >
-<img src="/fastlane/metadata/android/en-US/images/screenshots/5.jpg" width="50%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/6.jpg" width="50%" />
+<img src="/fastlane/metadata/android/en-US/images/screenshots/5.jpg" width="40%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/6.jpg" width="40%" />
 </div>
 <div >
-<img src="/fastlane/metadata/android/en-US/images/screenshots/7.jpg" width="50%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/8.jpg" width="50%" />
+<img src="/fastlane/metadata/android/en-US/images/screenshots/7.jpg" width="40%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/8.jpg" width="40%" />
 </div>
 <div >
-<img src="/fastlane/metadata/android/en-US/images/screenshots/9.jpg" width="50%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/10.jpg" width="50%" />
+<img src="/fastlane/metadata/android/en-US/images/screenshots/9.jpg" width="40%" /> <img src="/fastlane/metadata/android/en-US/images/screenshots/10.jpg" width="40%" />
 </div>
 
 ## Video demo
